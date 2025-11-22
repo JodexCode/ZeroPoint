@@ -1,0 +1,15 @@
+@use './reset.scss';
+
+// 3. 设置全局字体栈
+:root {
+  font-family:
+    'Inter',
+    // 英文首选
+    'HarmonyOS Sans SC',
+    // 中文首选（SC = Simplified Chinese）
+    'PingFang SC',
+    // macOS 中文备选
+    'Microsoft YaHei',
+    // Windows 中文备选
+    sans-serif; // 通用 fallback
+}

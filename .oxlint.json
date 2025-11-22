@@ -1,0 +1,28 @@
+{
+  "ignores": [
+    "**/node_modules/**",
+    "**/.pnpm/**",
+    "node_modules/",
+    ".pnpm/",
+    "dist/",
+    "build/",
+    "coverage/"
+  ],
+  "rules": {
+    "correctness": "error",
+    "suspicious": "error",
+    "style": "warn",
+    "pedantic": "off",
+    "nursery": "off",
+    "noConsole": "warn",
+    "noDebugger": "warn",
+    "noVar": "error",
+    "preferConst": "error",
+    "noUnusedVariables": ["error", { "argsIgnorePattern": "^_" }],
+    "noExplicitAny": "warn"
+  },
+  "env": {
+    "node": true,
+    "es2022": true
+  }
+}

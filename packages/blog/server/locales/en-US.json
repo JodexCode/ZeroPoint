@@ -1,0 +1,10 @@
+{
+  "healthCheck": {
+    "title": "Backend health check completed",
+    "dbOk": "Database connection OK",
+    "dbFail": "Database connection failed: {{error}}",
+    "redisOk": "Redis connection OK",
+    "redisFail": "Redis connection failed: {{error}}",
+    "unknownError": "Unknown error"
+  }
+}

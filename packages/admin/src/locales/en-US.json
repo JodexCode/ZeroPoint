@@ -1,0 +1,78 @@
+{
+  "login": {
+    "welcome": "Welcome to the admin system",
+    "subtitle": "A clean and efficient management platform, focused on improving operational efficiency.",
+    "title": "Admin Login",
+    "username": "Username",
+    "usernamePlaceholder": "Please enter username",
+    "password": "Password",
+    "passwordPlaceholder": "Please enter password",
+    "loginBtn": "Sign In",
+    "usernameRequired": "Username is required",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "success": "Login successful",
+    "failed": "Login failed. Please check your credentials.",
+    "copyright": {
+      "line1": "© {year} {appName}",
+      "line2": "All rights reserved. Open source under MIT License."
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "articles": "Articles",
+    "profile": "Profile",
+    "systemMonitor": "System Monitor"
+  },
+  "common": {
+    "welcome": "Welcome back",
+    "logout": "Logout"
+  },
+  "profile": {
+    "avatar": {
+      "title": "Avatar Settings",
+      "change": "Change Avatar",
+      "preview": "Preview",
+      "confirm": "Confirm Upload"
+    }
+  },
+  "systemMonitor": {
+    "performance": "Performance",
+    "systemInfoGroup": "System Information",
+    "systemDetails": "System Details",
+
+    "cpu": "CPU",
+    "memory": "Memory",
+    "disks": "Disks",
+    "systemStatus": "System Status",
+
+    "usage": "Usage",
+    "model": "Model",
+    "cores": "{n} Cores",
+    "totalMemory": "Total Memory",
+    "usedMemory": "Used",
+    "freeMemory": "Free Memory",
+    "used": "Used",
+    "total": "Total",
+
+    "noDisks": "No disks detected",
+    "uptime": "Uptime",
+    "loadAverage": "Load Average",
+    "lastUpdate": "Last Updated",
+    "hostname": "Hostname",
+    "os": "Operating System",
+    "version": "Version",
+    "architecture": "Architecture",
+
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "noData": "No monitoring data",
+    "loadFailed": "Failed to load metrics",
+    "days": "days",
+    "unavailable": "N/A",
+
+    "historyTrend": "Historical Trend"
+  }
+}

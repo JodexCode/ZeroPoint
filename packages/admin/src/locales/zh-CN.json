@@ -1,0 +1,78 @@
+{
+  "login": {
+    "welcome": "欢迎使用后台管理系统",
+    "subtitle": "一款简洁高效的管理平台，专注提升管理效率",
+    "title": "管理员登录",
+    "username": "用户名",
+    "usernamePlaceholder": "请输入用户名",
+    "password": "密码",
+    "passwordPlaceholder": "请输入密码",
+    "loginBtn": "登录",
+    "usernameRequired": "请输入用户名",
+    "passwordRequired": "请输入密码",
+    "passwordMinLength": "密码至少6位",
+    "rememberMe": "记住我",
+    "forgotPassword": "忘记密码？",
+    "success": "登录成功",
+    "failed": "登录失败，请检查用户名和密码",
+    "copyright": {
+      "line1": "© {year} {appName}",
+      "line2": "保留所有权利。基于 MIT 协议开源。"
+    }
+  },
+  "nav": {
+    "dashboard": "仪表盘",
+    "articles": "文章管理",
+    "profile": "个人设置",
+    "systemMonitor": "系统监控"
+  },
+  "common": {
+    "welcome": "欢迎回来",
+    "logout": "退出登录"
+  },
+  "profile": {
+    "avatar": {
+      "title": "头像设置",
+      "change": "更换头像",
+      "preview": "裁剪预览",
+      "confirm": "确认上传"
+    }
+  },
+  "systemMonitor": {
+    "performance": "性能指标",
+    "systemInfoGroup": "系统信息",
+    "systemDetails": "系统详情",
+
+    "cpu": "处理器",
+    "memory": "内存",
+    "disks": "磁盘",
+    "systemStatus": "系统状态",
+
+    "usage": "使用率",
+    "model": "型号",
+    "cores": "{n} 核心",
+    "totalMemory": "总内存",
+    "usedMemory": "已使用",
+    "freeMemory": "空闲内存",
+    "used": "已用",
+    "total": "总量",
+
+    "noDisks": "未检测到磁盘",
+    "uptime": "运行时间",
+    "loadAverage": "平均负载",
+    "lastUpdate": "最后更新",
+    "hostname": "主机名",
+    "os": "操作系统",
+    "version": "版本号",
+    "architecture": "架构",
+
+    "loading": "加载中...",
+    "refresh": "刷新",
+    "noData": "暂无监控数据",
+    "loadFailed": "加载监控数据失败",
+    "days": "天",
+    "unavailable": "不可用",
+
+    "historyTrend": "历史趋势"
+  }
+}

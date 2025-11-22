@@ -1,0 +1,10 @@
+{
+  "healthCheck": {
+    "title": "后端服务健康检查完成",
+    "dbOk": "数据库连接正常",
+    "dbFail": "数据库连接失败：{{error}}",
+    "redisOk": "Redis 连接正常",
+    "redisFail": "Redis 连接失败：{{error}}",
+    "unknownError": "未知错误"
+  }
+}

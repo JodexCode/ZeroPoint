@@ -1,0 +1,27 @@
+# 全局
+node_modules/
+.pnpm-debug.log*
+.npm
+.yarn
+.env.local
+.env.*.local
+!.env.example
+
+# Nuxt (blog)
+packages/blog/.nuxt/
+packages/blog/dist/
+packages/blog/.output/
+
+# Vue (admin)
+packages/admin/dist/
+packages/admin/.vite/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
