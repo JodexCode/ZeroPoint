@@ -73,6 +73,27 @@
     "days": "days",
     "unavailable": "N/A",
 
-    "historyTrend": "Historical Trend"
+    "historyTrend": "Historical Trend",
+    "resourceUsageTrends": "Resource Usage Trends",
+    "cpuMemoryTrend": "CPU & Memory Usage Trend",
+    "networkTrend": "Network Traffic Trend",
+    "last15Minutes": "Last 15 Minutes",
+    "last24Hours": "Last 24 Hours",
+
+    "serviceStatus": "Service Status",
+    "running": "Running",
+    "disconnected": "Disconnected",
+    "connectionFailed": "Connection failed",
+    "connections": "Connections",
+    "clients": "Clients",
+    "networkInterfaces": "Network Interfaces",
+    "noNetworkInterfaces": "No network interfaces detected",
+    "internal": "Internal",
+    "external": "External",
+
+    "hours": "hours",
+    "minutes": "minutes",
+    "minute": "minute",
+    "maxConnections": "Max Connections"
   }
 }

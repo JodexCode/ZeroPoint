@@ -49,7 +49,7 @@ export default defineEventHandler(async event => {
   // 查询管理员
   const admin = await db('admins')
     .where({ username })
-    .select('id', 'username', 'password_hash')
+    .select('id', 'username', 'password_hash', 'nickname', 'avatar_url')
     .first()
 
   if (!admin) {
@@ -77,6 +77,8 @@ export default defineEventHandler(async event => {
     adminId: admin.id,
     username: admin.username,
     createdAt: Date.now(),
+    nickname: admin.nickname || admin.username, // 👈 回退到 username
+    avatarUrl: admin.avatar_url || null,
   }
   await sessionStore.set(sessionToken, sessionData)
 

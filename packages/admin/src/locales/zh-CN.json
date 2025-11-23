@@ -73,6 +73,28 @@
     "days": "天",
     "unavailable": "不可用",
 
-    "historyTrend": "历史趋势"
+    "historyTrend": "历史趋势",
+
+    "resourceUsageTrends": "资源使用趋势",
+    "cpuMemoryTrend": "CPU 与内存使用趋势",
+    "networkTrend": "网络流量趋势",
+    "last15Minutes": "最近15分钟",
+    "last24Hours": "最近24小时",
+
+    "serviceStatus": "服务状态",
+    "running": "运行中",
+    "disconnected": "已断开",
+    "connectionFailed": "连接失败",
+    "connections": "连接数",
+    "clients": "客户端数",
+    "networkInterfaces": "网络接口",
+    "noNetworkInterfaces": "未检测到网络接口",
+    "internal": "内部",
+    "external": "外部",
+
+    "hours": "小时",
+    "minutes": "分钟",
+    "minute": "分钟",
+    "maxConnections": "最大连接数"
   }
 }

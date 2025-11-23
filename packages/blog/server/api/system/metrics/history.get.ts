@@ -1,33 +1,42 @@
 // packages/blog/server/api/system/metrics/history.get.ts
-import { defineEventHandler } from 'h3'
-import { getCookie, createError } from 'h3'
-import { sessionStore } from '../../../utils/sessionStore'
-import { metricsHistory } from '../../../utils/system/history'
+import { defineEventHandler, getQuery } from 'h3'
+import getRedisClient from '../../../utils/redis'
+import { createError } from 'h3'
 
-async function requireAuth(event: any) {
-  const sessionToken = getCookie(event, 'session_token')
-  if (!sessionToken) {
-    throw createError({ statusCode: 401, message: '未提供会话凭证' })
-  }
-  const session = await sessionStore.get(sessionToken)
-  if (!session) {
-    throw createError({ statusCode: 401, message: '会话无效' })
+function parseMetric(item: string) {
+  const data = JSON.parse(item)
+  return {
+    timestamp: data.ts,
+    cpu: data.cpu,
+    memory: data.mem,
+    network: {
+      rxSpeedKBps: data.rx,
+      txSpeedKBps: data.tx,
+    },
   }
 }
 
 export default defineEventHandler(async event => {
-  await requireAuth(event)
+  const query = getQuery(event)
+  const range = query.range?.toString()?.toLowerCase() || '15m'
 
-  // 只返回必要字段，减少体积
-  const simplified = metricsHistory.map(m => ({
-    timestamp: m.timestamp,
-    cpu: m.cpu.usagePercent,
-    memory: m.memory.usagePercent,
-    network: {
-      rxSpeedKBps: m.network.total.rxSpeedKBps,
-      txSpeedKBps: m.network.total.txSpeedKBps,
-    },
-  }))
+  const client = await getRedisClient()
+  const now = Math.floor(Date.now() / 1000)
 
-  return { history: simplified }
+  if (range === '15m') {
+    const minScore = now - 15 * 60
+    const rawItems = await client.zRange('system:metrics:raw', minScore, now, {
+      BY: 'SCORE',
+    })
+    const items = rawItems.slice(-15)
+    return { history: items.map(parseMetric) }
+  } else if (range === '24h') {
+    const minScore = now - 24 * 60 * 60
+    const hourlyItems = await client.zRange('system:metrics:hourly', minScore, now, {
+      BY: 'SCORE',
+    })
+    return { history: hourlyItems.map(parseMetric) }
+  } else {
+    throw createError({ statusCode: 400, message: 'range 参数仅支持 15m 或 24h' })
+  }
 })

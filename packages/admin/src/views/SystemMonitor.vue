@@ -69,11 +69,27 @@
         </div>
       </div>
 
-      <!-- 历史趋势（新增） -->
-      <div class="section history-trend" v-if="historyData.length > 0">
-        <h3 class="section-title">{{ t('systemMonitor.historyTrend') }}</h3>
+      <!-- 历史趋势 -->
+      <!-- 资源使用趋势 -->
+      <div class="section resource-trend" v-if="historyData.length > 0">
+        <div class="trend-header">
+          <h3 class="section-title">{{ t('systemMonitor.resourceUsageTrends') }}</h3>
+          <el-radio-group v-model="timeRange" size="small" @change="fetchHistoryData">
+            <el-radio-button label="15m">{{ t('systemMonitor.last15Minutes') }}</el-radio-button>
+            <el-radio-button label="24h">{{ t('systemMonitor.last24Hours') }}</el-radio-button>
+          </el-radio-group>
+        </div>
+
+        <!-- CPU & 内存 -->
         <el-card class="trend-card">
+          <div class="chart-title">{{ t('systemMonitor.cpuMemoryTrend') }}</div>
           <CpuMemoryTrendChart :cpu-data="formattedCpuData" :memory-data="formattedMemoryData" />
+        </el-card>
+
+        <!-- 网络 -->
+        <el-card class="trend-card" style="margin-top: 24px">
+          <div class="chart-title">{{ t('systemMonitor.networkTrend') }}</div>
+          <NetworkTrendChart :rx-data="formattedRxData" :tx-data="formattedTxData" />
         </el-card>
       </div>
 
@@ -157,6 +173,111 @@
           </el-card>
         </div>
       </div>
+
+      <!-- 服务状态 -->
+      <div class="section service-status">
+        <h3 class="section-title">{{ t('systemMonitor.serviceStatus') }}</h3>
+        <div class="services-grid">
+          <!-- PostgreSQL -->
+          <el-card class="service-card">
+            <div class="service-header">
+              <span>PostgreSQL</span>
+              <el-tag :type="rawData?.databases.postgresql.connected ? 'success' : 'danger'">
+                {{
+                  rawData?.databases.postgresql.connected
+                    ? t('systemMonitor.running')
+                    : t('systemMonitor.disconnected')
+                }}
+              </el-tag>
+            </div>
+            <div v-if="rawData?.databases.postgresql.connected" class="info-list">
+              <div class="info-item">
+                <label>{{ t('systemMonitor.version') }}:</label>
+                <span>{{ rawData.databases.postgresql.version || '—' }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ t('systemMonitor.connections') }}:</label>
+                <span
+                  >{{ rawData.databases.postgresql.connections }} /
+                  {{ rawData.databases.postgresql.maxConnections }}</span
+                >
+              </div>
+              <div class="info-item">
+                <label>{{ t('systemMonitor.uptime') }}:</label>
+                <span>{{ formatUptime(rawData.databases.postgresql.uptimeSeconds) }}</span>
+              </div>
+            </div>
+            <div v-else class="error-info">
+              {{ rawData?.databases.postgresql.error || t('systemMonitor.connectionFailed') }}
+            </div>
+          </el-card>
+
+          <!-- Redis -->
+          <el-card class="service-card">
+            <div class="service-header">
+              <span>Redis</span>
+              <el-tag :type="rawData?.databases.redis.connected ? 'success' : 'danger'">
+                {{
+                  rawData?.databases.redis.connected
+                    ? t('systemMonitor.running')
+                    : t('systemMonitor.disconnected')
+                }}
+              </el-tag>
+            </div>
+            <div v-if="rawData?.databases.redis.connected" class="info-list">
+              <div class="info-item">
+                <label>{{ t('systemMonitor.version') }}:</label>
+                <span>{{ rawData.databases.redis.version || '—' }}</span>
+              </div>
+              <div class="info-item">
+                <label>{{ t('systemMonitor.usedMemory') }}:</label>
+                <span>{{ rawData.databases.redis.usedMemoryMB }} MB</span>
+              </div>
+              <div class="info-item">
+                <label>{{ t('systemMonitor.clients') }}:</label>
+                <span>
+                  {{ rawData.databases.redis.connectedClients }} /
+                  {{ rawData.databases.redis.maxClients }}
+                </span>
+              </div>
+              <div class="info-item">
+                <label>{{ t('systemMonitor.uptime') }}:</label>
+                <span>{{ formatUptime(rawData.databases.redis.uptimeSeconds) }}</span>
+              </div>
+            </div>
+            <div v-else class="error-info">
+              {{ rawData?.databases.redis.error || t('systemMonitor.connectionFailed') }}
+            </div>
+          </el-card>
+        </div>
+      </div>
+
+      <!-- 网络接口详情 -->
+      <div class="section network-interfaces">
+        <h3 class="section-title">{{ t('systemMonitor.networkInterfaces') }}</h3>
+        <el-card class="metric-card">
+          <div v-if="rawData?.network.interfaces.length === 0" class="no-data">
+            {{ t('systemMonitor.noNetworkInterfaces') }}
+          </div>
+          <div v-else class="interfaces-list">
+            <div
+              v-for="(iface, index) in rawData.network.interfaces"
+              :key="index"
+              class="interface-item"
+              :class="{ internal: iface.internal }"
+            >
+              <div class="iface-name">{{ iface.name }}</div>
+              <div class="iface-details">
+                <span class="address">{{ iface.address }}</span>
+                <span class="mac">{{ iface.mac }}</span>
+                <el-tag size="small" :type="iface.internal ? 'info' : 'primary'">
+                  {{ iface.internal ? t('systemMonitor.internal') : t('systemMonitor.external') }}
+                </el-tag>
+              </div>
+            </div>
+          </div>
+        </el-card>
+      </div>
     </template>
   </div>
 </template>
@@ -164,23 +285,37 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  getSystemMetrics,
-  getSystemInfo,
-  getSystemMetricsHistory,
-  type SystemMetricsRaw,
-  type SystemInfoRaw,
-} from '@/apis/monitor'
+import { getSystemMetrics, getSystemInfo, getSystemMetricsHistory } from '@/apis/monitor'
 import { ElMessage } from 'element-plus'
 import CpuMemoryTrendChart from '@/components/CpuMemoryTrendChart.vue'
+import NetworkTrendChart from '@/components/NetworkTrendChart.vue'
+import type {
+  SystemMetricsRaw,
+  SystemInfoRaw,
+  SystemMetricsHistoryResponse,
+  SystemMetricsHistoryItem,
+} from '@/types/monitor'
 
 const { t } = useI18n()
 
 const rawData = ref<SystemMetricsRaw | null>(null)
 const systemInfo = ref<SystemInfoRaw | null>(null)
-const historyData = ref<Array<{ timestamp: string; cpu: number; memory: number }>>([])
+const historyData = ref<SystemMetricsHistoryItem[]>([]) // 更改这里
 const loading = ref(false)
 const lastUpdateTime = ref<string>('')
+const timeRange = ref<'15m' | '24h'>('15m')
+
+let updateInterval: number | null = null
+
+// 初始化时获取系统信息
+const initSystemInfo = async () => {
+  try {
+    systemInfo.value = await getSystemInfo()
+  } catch (error) {
+    console.error('加载系统信息失败:', error)
+    ElMessage.error(t('systemMonitor.loadFailed'))
+  }
+}
 
 const safeSystemInfo = computed(() => ({
   cpu: {
@@ -216,24 +351,51 @@ const formattedMemoryData = computed(() =>
   }))
 )
 
+// 格式化网络数据供图表使用
+const formattedRxData = computed(() =>
+  historyData.value.map(item => ({
+    time: new Date(item.timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    value: item.network.rxSpeedKBps,
+  }))
+)
+
+const formattedTxData = computed(() =>
+  historyData.value.map(item => ({
+    time: new Date(item.timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+    value: item.network.txSpeedKBps,
+  }))
+)
+
+// 修改 fetchHistoryData 为独立函数
+const fetchHistoryData = async () => {
+  try {
+    const res = await getSystemMetricsHistory(timeRange.value)
+    historyData.value = res.history || [] // 更改这里
+  } catch (error) {
+    console.error('加载历史数据失败:', error)
+    ElMessage.error(t('systemMonitor.loadHistoryFailed'))
+    historyData.value = []
+  }
+}
+
+// 修改原始 fetchData，不再拉取 history
 const fetchData = async () => {
   loading.value = true
   try {
-    const [metrics, info, historyRes] = await Promise.all([
-      getSystemMetrics(),
-      getSystemInfo(),
-      getSystemMetricsHistory(),
-    ])
+    const metrics = await getSystemMetrics()
     rawData.value = metrics
-    systemInfo.value = info
-    historyData.value = historyRes.history
     lastUpdateTime.value = new Date().toLocaleTimeString()
+    await fetchHistoryData() // 单独拉取历史数据
   } catch (error) {
     console.error('加载系统监控数据失败:', error)
     ElMessage.error(t('systemMonitor.loadFailed'))
     rawData.value = null
-    systemInfo.value = null
-    historyData.value = []
   } finally {
     loading.value = false
   }
@@ -264,6 +426,22 @@ const formatPercent = (value: number): string => {
   return `${value.toFixed(1)}%`
 }
 
+// 格式化服务 uptime（复用系统 uptime 逻辑）
+const formatUptime = (seconds: number | undefined): string => {
+  if (seconds == null || seconds <= 0) return '—'
+
+  const days = Math.floor(seconds / 86400)
+  const hours = Math.floor((seconds % 86400) / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+
+  const parts = []
+  if (days > 0) parts.push(`${days} ${t('systemMonitor.days')}`)
+  if (hours > 0) parts.push(`${hours} ${t('systemMonitor.hours')}`)
+  if (minutes > 0) parts.push(`${minutes} ${t('systemMonitor.minutes')}`)
+
+  return parts.length > 0 ? parts.join(' ') : `< 1 ${t('systemMonitor.minute')}`
+}
+
 const getProgressColor = (percent: number): string => {
   if (percent < 60) return '#67C23A'
   if (percent < 85) return '#E6A23C'
@@ -271,7 +449,16 @@ const getProgressColor = (percent: number): string => {
 }
 
 onMounted(() => {
+  initSystemInfo()
   fetchData()
+  // 每分钟更新一次数据
+  updateInterval = setInterval(fetchData, 60000)
+})
+
+onUnmounted(() => {
+  if (updateInterval !== null) {
+    clearInterval(updateInterval)
+  }
 })
 </script>
 
@@ -437,6 +624,85 @@ onMounted(() => {
             color: var(--text-secondary);
           }
         }
+      }
+    }
+  }
+}
+
+.trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .section-title {
+    margin-bottom: 0;
+  }
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.service-status {
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .service-card {
+    .service-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .error-info {
+      color: var(--el-color-danger);
+      font-size: 14px;
+      padding: 12px 0;
+    }
+  }
+}
+
+.network-interfaces {
+  .interfaces-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .interface-item {
+    padding: 12px;
+    border-radius: 8px;
+    background-color: var(--el-fill-color-light);
+
+    &.internal {
+      opacity: 0.7;
+    }
+
+    .iface-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .iface-details {
+      display: flex;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      align-items: center;
+
+      .address,
+      .mac {
+        font-family: monospace;
       }
     }
   }

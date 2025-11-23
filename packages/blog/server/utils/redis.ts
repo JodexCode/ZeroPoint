@@ -1,4 +1,4 @@
-// server/utils/redis.ts
+// packages\blog\server\utils\redis.ts
 import { createClient } from 'redis'
 
 type RedisClient = ReturnType<typeof createClient>

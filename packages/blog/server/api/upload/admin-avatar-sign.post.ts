@@ -1,25 +1,13 @@
 // packages/blog/server/api/upload/admin-avatar-sign.post.ts
-
-import { defineEventHandler, readBody, createError, getCookie } from 'h3'
+import { defineEventHandler, readBody, createError } from 'h3'
 import { z } from 'zod'
-import { getUploadSignUrl } from '../../utils/cos' // 同步函数
-import { sessionStore } from '../../utils/sessionStore'
+import { getUploadSignUrl } from '../../utils/cos'
 
 const SignSchema = z.object({
   mimeType: z.string().regex(/^image\/(jpeg|jpg|png|gif|webp)$/i),
 })
 
 export default defineEventHandler(async event => {
-  const token = getCookie(event, 'session_token')
-  if (!token) {
-    throw createError({ statusCode: 401, message: '未登录' })
-  }
-
-  const session = await sessionStore.get(token)
-  if (!session) {
-    throw createError({ statusCode: 401, message: '会话已过期，请重新登录' })
-  }
-
   try {
     const body = await readBody(event)
     const { mimeType } = SignSchema.parse(body)

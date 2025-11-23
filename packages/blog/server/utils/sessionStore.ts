@@ -1,13 +1,13 @@
-// server/utils/sessionStore.ts
-import type { AdminSessionData } from '../types/session'
-import getRedisClient from './redis' // ← 改为导入函数
+// packages\blog\server\utils\sessionStore.ts
+import { AdminSessionData, AdminSessionDataSchema } from '../types/session'
+import getRedisClient from './redis'
 
 const SESSION_PREFIX = 'session:'
-const SESSION_TTL = 7 * 24 * 60 * 60 // 7 天（秒）
+const SESSION_TTL = 7 * 24 * 60 * 60
 
 export const sessionStore = {
   async set(token: string, data: AdminSessionData): Promise<void> {
-    const client = await getRedisClient() // ← 懒加载连接
+    const client = await getRedisClient()
     const key = SESSION_PREFIX + token
     await client.setEx(key, SESSION_TTL, JSON.stringify(data))
   },
@@ -16,7 +16,17 @@ export const sessionStore = {
     const client = await getRedisClient()
     const key = SESSION_PREFIX + token
     const data = await client.get(key)
-    return data ? JSON.parse(data) : null
+    if (!data) return null
+
+    try {
+      const parsed = JSON.parse(data)
+      const validated = AdminSessionDataSchema.parse(parsed) // 👈 关键：运行时验证
+      return validated
+    } catch (error) {
+      console.warn('Invalid session data format, deleting:', key, error)
+      await client.del(key) // 可选：自动清理损坏的 session
+      return null
+    }
   },
 
   async delete(token: string): Promise<boolean> {
@@ -27,6 +37,6 @@ export const sessionStore = {
   },
 
   cleanupExpired(): void {
-    // redis 会自动处理过期键，无需手动清理
+    // Redis 自动过期，无需操作
   },
 }

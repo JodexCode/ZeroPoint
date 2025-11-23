@@ -1,8 +1,6 @@
 // packages/blog/server/api/system/metrics.get.ts
 import { defineEventHandler } from 'h3'
 import os from 'os'
-import { getCookie, createError } from 'h3'
-import { sessionStore } from '../../utils/sessionStore'
 import {
   getDisks,
   getInstantCpuUsage,
@@ -11,21 +9,7 @@ import {
   checkDatabaseHealth,
 } from '../../utils/system'
 
-async function requireAuth(event: any) {
-  const sessionToken = getCookie(event, 'session_token')
-  if (!sessionToken) {
-    throw createError({ statusCode: 401, message: '未提供会话凭证' })
-  }
-  const session = await sessionStore.get(sessionToken)
-  if (!session) {
-    throw createError({ statusCode: 401, message: '会话无效' })
-  }
-}
-
-export default defineEventHandler(async event => {
-  await requireAuth(event)
-
-  // ✅ 并行执行所有异步操作
+export default defineEventHandler(async () => {
   const [
     cpuUsage,
     totalMem,
@@ -38,7 +22,7 @@ export default defineEventHandler(async event => {
     Promise.resolve(getInstantCpuUsage()),
     Promise.resolve(os.totalmem()),
     Promise.resolve(os.freemem()),
-    getDisks(), // 已缓存，极快
+    getDisks(),
     Promise.resolve(getNetworkInterfaces()),
     getNetworkSpeed(),
     checkDatabaseHealth(),

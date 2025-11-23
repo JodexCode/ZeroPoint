@@ -1,4 +1,4 @@
-<!-- packages/admin/src/components/CpuMemoryTrendChart.vue -->
+<!-- packages/admin/src/components/NetworkTrendChart.vue -->
 <template>
   <div class="chart-container">
     <VChart :option="chartOption" autoresize class="echart" />
@@ -11,32 +11,34 @@ import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart } from 'echarts/charts'
-import {
-  TitleComponent,
-  TooltipComponent,
-  GridComponent,
-  LegendComponent,
-} from 'echarts/components'
+import { TooltipComponent, GridComponent, LegendComponent } from 'echarts/components'
 
-use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent])
+use([CanvasRenderer, LineChart, TooltipComponent, GridComponent, LegendComponent])
 
 const props = defineProps<{
-  cpuData: { time: string; value: number }[]
-  memoryData: { time: string; value: number }[]
+  rxData: { time: string; value: number }[]
+  txData: { time: string; value: number }[]
 }>()
 
 const chartOption = computed(() => {
-  const times = props.cpuData.map(item => item.time)
-  const cpuValues = props.cpuData.map(item => item.value)
-  const memoryValues = props.memoryData.map(item => item.value)
+  const times = props.rxData.map(item => item.time)
+  const rxValues = props.rxData.map(item => item.value)
+  const txValues = props.txData.map(item => item.value)
 
   return {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'cross' },
+      formatter: (params: any[]) => {
+        let result = `${params[0].name}<br/>`
+        params.forEach(param => {
+          result += `${param.marker} ${param.seriesName}: ${param.value.toFixed(1)} KB/s<br/>`
+        })
+        return result
+      },
     },
     legend: {
-      data: ['CPU (%)', 'Memory (%)'],
+      data: ['Receive (KB/s)', 'Transmit (KB/s)'],
       bottom: 0,
     },
     grid: {
@@ -44,7 +46,6 @@ const chartOption = computed(() => {
       right: '4%',
       bottom: '25%',
       top: '10%',
-      // containLabel: true,
     },
     xAxis: {
       type: 'category',
@@ -58,29 +59,28 @@ const chartOption = computed(() => {
     yAxis: {
       type: 'value',
       min: 0,
-      max: 100,
-      axisLabel: { formatter: '{value} %' },
+      axisLabel: { formatter: '{value} KB/s' },
     },
     series: [
       {
-        name: 'CPU (%)',
+        name: 'Receive (KB/s)',
         type: 'line',
         smooth: true,
         lineStyle: { width: 2 },
         symbol: 'circle',
         symbolSize: 6,
-        data: cpuValues,
-        color: '#409EFF',
+        data: rxValues,
+        color: '#909399', // 灰色系，区别于 CPU/内存
       },
       {
-        name: 'Memory (%)',
+        name: 'Transmit (KB/s)',
         type: 'line',
         smooth: true,
         lineStyle: { width: 2 },
         symbol: 'circle',
         symbolSize: 6,
-        data: memoryValues,
-        color: '#67C23A',
+        data: txValues,
+        color: '#E6A23C', // 橙色，代表“发送”
       },
     ],
   }
