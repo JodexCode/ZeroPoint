@@ -1,7 +1,7 @@
 <!-- packages/admin/src/layouts/AdminLayout.vue -->
 <template>
   <div class="admin-layout">
-    <!-- 左侧边栏（PC）或抽屉（Mobile） -->
+    <!-- 左侧边栏（PC） -->
     <aside v-if="!isMobile" class="sidebar" :class="{ 'sidebar-collapsed': isCollapsed }">
       <div class="logo-section">
         <div class="logo" :class="{ 'logo-collapsed': isCollapsed }">{{ appName }}</div>
@@ -22,14 +22,32 @@
         :collapse="isCollapsed"
         :collapse-transition="false"
       >
-        <el-menu-item v-for="route in menuRoutes" :key="route.path" :index="route.path">
-          <el-icon>
-            <component :is="getIconComponent(route.meta?.icon)" />
-          </el-icon>
-          <template #title>
-            {{ t(route.meta!.title!) }}
-          </template>
-        </el-menu-item>
+        <template v-for="item in processedMenuRoutes" :key="item.fullPath">
+          <el-sub-menu v-if="item.children && item.children.length" :index="item.fullPath">
+            <template #title>
+              <el-icon>
+                <component :is="getIconComponent(item.meta.icon)" />
+              </el-icon>
+              <span>{{ t(item.meta.title) }}</span>
+            </template>
+            <el-menu-item
+              v-for="child in item.children"
+              :key="child.fullPath"
+              :index="child.fullPath"
+            >
+              {{ t(child.meta.title) }}
+            </el-menu-item>
+          </el-sub-menu>
+
+          <el-menu-item v-else :index="item.fullPath">
+            <el-icon>
+              <component :is="getIconComponent(item.meta.icon)" />
+            </el-icon>
+            <template #title>
+              {{ t(item.meta.title) }}
+            </template>
+          </el-menu-item>
+        </template>
       </el-menu>
     </aside>
 
@@ -53,20 +71,37 @@
         active-text-color="var(--el-color-primary)"
         @select="handleMobileMenuSelect"
       >
-        <el-menu-item v-for="route in menuRoutes" :key="route.path" :index="route.path">
-          <el-icon>
-            <component :is="getIconComponent(route.meta?.icon)" />
-          </el-icon>
-          <template #title>
-            {{ t(route.meta!.title!) }}
-          </template>
-        </el-menu-item>
+        <template v-for="item in processedMenuRoutes" :key="item.fullPath">
+          <el-sub-menu v-if="item.children && item.children.length" :index="item.fullPath">
+            <template #title>
+              <el-icon>
+                <component :is="getIconComponent(item.meta.icon)" />
+              </el-icon>
+              <span>{{ t(item.meta.title) }}</span>
+            </template>
+            <el-menu-item
+              v-for="child in item.children"
+              :key="child.fullPath"
+              :index="child.fullPath"
+            >
+              {{ t(child.meta.title) }}
+            </el-menu-item>
+          </el-sub-menu>
+
+          <el-menu-item v-else :index="item.fullPath">
+            <el-icon>
+              <component :is="getIconComponent(item.meta.icon)" />
+            </el-icon>
+            <template #title>
+              {{ t(item.meta.title) }}
+            </template>
+          </el-menu-item>
+        </template>
       </el-menu>
     </el-drawer>
 
     <!-- 主内容区 -->
     <main class="main-content">
-      <!-- 顶部栏 -->
       <header class="topbar">
         <div class="mobile-menu-trigger" v-if="isMobile" @click="drawerVisible = true">
           <el-icon><Menu /></el-icon>
@@ -108,72 +143,136 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import { Fold, Expand, Menu } from '@element-plus/icons-vue'
 import LocaleSwitcher from '@/components/LocaleSwitcher.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useAdminInfoStore } from '@/stores/adminInfo'
-import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import * as ElementPlusIcons from '@element-plus/icons-vue'
 
 const appName = import.meta.env.VITE_APP_NAME ?? 'Admin'
+
+interface MenuItem {
+  path: string
+  fullPath: string
+  meta: {
+    menu: true
+    title: string
+    icon?: string
+  }
+  children?: MenuItem[]
+}
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 const adminInfoStore = useAdminInfoStore()
 const route = useRoute()
 
-/* 折叠 & 移动端 */
+// 响应式状态
 const isCollapsed = ref(false)
 const isMobile = ref(false)
 const drawerVisible = ref(false)
 const showUserOnMobile = ref(false)
 
+// 工具函数
 const checkIsMobile = () => (isMobile.value = window.innerWidth < 768)
 
 onMounted(() => {
   checkIsMobile()
-  // ✅ 删除了以下两行，不再自动调用 loadAdminInfo
-  // if (authStore.isAuthenticated) await adminInfoStore.loadAdminInfo()
   window.addEventListener('resize', checkIsMobile)
 })
-onBeforeUnmount(() => window.removeEventListener('resize', checkIsMobile))
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkIsMobile)
+})
 
 const toggleCollapse = () => (isCollapsed.value = !isCollapsed.value)
 const handleMobileMenuSelect = () => (drawerVisible.value = false)
 
-/* 图标映射 */
 const getIconComponent = (iconName?: string) =>
   iconName ? (ElementPlusIcons as any)[iconName] : undefined
 
-/* 菜单计算 */
-function isValidMenuRoute(
-  route: any
-): route is { path: string; meta: { menu: true; title: string; icon?: string } } {
+// 判断是否为有效菜单项
+function isValidMenuRoute(route: any): route is { path: string; meta: any; children?: any[] } {
   return route.meta?.menu === true && typeof route.meta.title === 'string'
 }
-const menuRoutes = computed(() => {
+
+// 递归构建带 fullPath 的菜单树（最多两层，符合 el-menu）
+const buildMenuItems = (routes: any[], parentPath = ''): MenuItem[] => {
+  return routes.filter(isValidMenuRoute).map(r => {
+    const currentPath = r.path.startsWith('/') ? r.path : `/${r.path}`
+    const fullPath = parentPath ? `${parentPath}${currentPath}` : currentPath
+
+    let children: MenuItem[] | undefined
+    if (Array.isArray(r.children) && r.children.length > 0) {
+      children = buildMenuItems(r.children, fullPath).filter(child => child.meta.menu)
+      if (children.length === 0) children = undefined
+    }
+
+    return {
+      path: r.path,
+      fullPath,
+      meta: r.meta,
+      children,
+    }
+  })
+}
+
+// 获取根路由下的菜单
+const processedMenuRoutes = computed(() => {
   const layout = route.matched.find(r => r.path === '/')
-  if (!layout?.children) return []
-  return layout.children.filter(isValidMenuRoute).map(child => ({
-    ...child,
-    path: child.path.startsWith('/') ? child.path : `/${child.path}`,
-  }))
-})
-const activeMenu = computed(() => {
-  const fullPath = route.path
-  for (const item of menuRoutes.value) if (fullPath === item.path) return item.path
-  if (fullPath.startsWith('/articles/')) return '/articles'
-  return '/'
-})
-const currentPageTitle = computed(() => {
-  const item = menuRoutes.value.find(r => r.path === activeMenu.value)
-  return item ? t(item.meta!.title!) : t('common.welcome')
+  return layout?.children ? buildMenuItems(layout.children) : []
 })
 
-/* 头像/昵称 */
+// 当前激活菜单项（用于高亮）
+const activeMenu = computed(() => {
+  const currentPath = route.path
+
+  // 文章相关页面统一高亮到 /articles
+  if (/^\/articles(\/|$)/.test(currentPath)) {
+    return '/articles'
+  }
+
+  // 遍历所有菜单项（包括子项）找匹配
+  for (const item of processedMenuRoutes.value) {
+    if (currentPath === item.fullPath) return item.fullPath
+    if (item.children) {
+      for (const child of item.children) {
+        if (currentPath === child.fullPath) return child.fullPath
+      }
+    }
+  }
+
+  return '/' // 默认高亮 Dashboard
+})
+
+// 当前页面标题：优先使用当前路由 meta.title，否则回退到菜单项
+const currentPageTitle = computed(() => {
+  // 1. 如果当前路由有 meta.title，直接使用（支持动态翻译）
+  if (route.meta.title) {
+    return t(route.meta.title as string)
+  }
+
+  // 2. 否则尝试从菜单中匹配（用于 Dashboard 等）
+  for (const item of processedMenuRoutes.value) {
+    if (activeMenu.value === item.fullPath) {
+      return t(item.meta.title)
+    }
+    if (item.children) {
+      for (const child of item.children) {
+        if (activeMenu.value === child.fullPath) {
+          return t(child.meta.title)
+        }
+      }
+    }
+  }
+
+  // 3. 默认兜底
+  return t('common.welcome')
+})
+
+// 用户信息
 const userAvatar = computed(() => adminInfoStore.displayAvatar)
 const userDisplayName = computed(() => adminInfoStore.displayName)
 
@@ -293,10 +392,6 @@ const handleLogout = () => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-
-  @media (max-width: 767px) {
-    flex: 1;
-  }
 }
 
 .topbar {

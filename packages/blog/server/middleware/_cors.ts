@@ -1,4 +1,4 @@
-// packages/blog/server/middleware/cors.ts
+// packages/blog/server/middleware/_cors.ts
 import { defineEventHandler, setHeader, getRequestHeaders } from 'h3'
 
 const ALLOWED_ORIGINS = ['http://localhost:5173', process.env.ADMIN_URL]

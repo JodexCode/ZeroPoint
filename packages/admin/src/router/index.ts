@@ -1,7 +1,12 @@
 // packages/admin/src/router/index.ts
+
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { h } from 'vue'
 import '@/types/router'
+
+// 内联文章模块布局组件：仅渲染子路由
+const ArticleModuleLayout = { render: () => h('router-view') }
 
 const routes: RouteRecordRaw[] = [
   {
@@ -23,8 +28,9 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'dashboard',
-        redirect: '/', // 避免重复路由
+        redirect: '/',
       },
+
       {
         path: 'articles',
         name: 'ArticleList',
@@ -35,13 +41,16 @@ const routes: RouteRecordRaw[] = [
         path: 'articles/new',
         name: 'ArticleCreate',
         component: () => import('@/views/articles/Edit.vue'),
+        meta: { menu: false, title: 'article.create' },
       },
       {
         path: 'articles/:id/edit',
         name: 'ArticleEdit',
         component: () => import('@/views/articles/Edit.vue'),
         props: true,
+        meta: { menu: false, title: 'article.edit' },
       },
+
       {
         path: 'profile',
         name: 'Profile',
@@ -75,20 +84,18 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // 🟢 场景1: 访问登录页（guestOnly）
+  // 场景1: guestOnly 页面（如登录页）
   if (to.meta.guestOnly) {
-    // 只看前端状态！避免查后端导致误判
     if (authStore.isAuthenticated) {
-      next('/') // 已登录用户不应停留在登录页
+      next('/')
     } else {
-      next() // 未登录，允许进入
+      next()
     }
     return
   }
 
-  // 🟢 场景2: 访问其他页面（需认证）
+  // 场景2: 需要认证的页面
   if (!authStore.isAuthenticated) {
-    // 前端无登录状态 → 验证后端是否真的没登录
     const isNowAuthenticated = await authStore.checkAuth()
     if (!isNowAuthenticated) {
       next({ path: '/login', query: { redirect: to.fullPath } })
@@ -96,7 +103,6 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // 已认证，放行
   next()
 })
 

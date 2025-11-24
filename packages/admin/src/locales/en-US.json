@@ -1,20 +1,20 @@
 {
   "login": {
-    "welcome": "Welcome to the admin system",
-    "subtitle": "A clean and efficient management platform, focused on improving operational efficiency.",
+    "welcome": "Welcome to Admin Dashboard",
+    "subtitle": "A clean and efficient management platform focused on boosting productivity",
     "title": "Admin Login",
     "username": "Username",
     "usernamePlaceholder": "Please enter username",
     "password": "Password",
     "passwordPlaceholder": "Please enter password",
-    "loginBtn": "Sign In",
+    "loginBtn": "Login",
     "usernameRequired": "Username is required",
     "passwordRequired": "Password is required",
     "passwordMinLength": "Password must be at least 6 characters",
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
     "success": "Login successful",
-    "failed": "Login failed. Please check your credentials.",
+    "failed": "Login failed. Please check your username and password.",
     "copyright": {
       "line1": "© {year} {appName}",
       "line2": "All rights reserved. Open source under MIT License."
@@ -28,35 +28,43 @@
   },
   "common": {
     "welcome": "Welcome back",
-    "logout": "Logout"
+    "logout": "Logout",
+    "createdAt": "Created At",
+    "actions": "Actions",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this?",
+    "yes": "Yes",
+    "no": "No",
+    "status": "Status",
+    "cancel": "Cancel",
+    "save": "Save",
+    "publish": "Publish"
   },
   "profile": {
     "avatar": {
       "title": "Avatar Settings",
       "change": "Change Avatar",
-      "preview": "Preview",
+      "preview": "Crop Preview",
       "confirm": "Confirm Upload"
     }
   },
   "systemMonitor": {
-    "performance": "Performance",
-    "systemInfoGroup": "System Information",
+    "performance": "Performance Metrics",
+    "systemInfoGroup": "System Info",
     "systemDetails": "System Details",
-
     "cpu": "CPU",
     "memory": "Memory",
     "disks": "Disks",
     "systemStatus": "System Status",
-
     "usage": "Usage",
     "model": "Model",
     "cores": "{n} Cores",
     "totalMemory": "Total Memory",
     "usedMemory": "Used",
-    "freeMemory": "Free Memory",
+    "freeMemory": "Free",
     "used": "Used",
     "total": "Total",
-
     "noDisks": "No disks detected",
     "uptime": "Uptime",
     "loadAverage": "Load Average",
@@ -65,35 +73,49 @@
     "os": "Operating System",
     "version": "Version",
     "architecture": "Architecture",
-
     "loading": "Loading...",
     "refresh": "Refresh",
-    "noData": "No monitoring data",
-    "loadFailed": "Failed to load metrics",
+    "noData": "No monitoring data available",
+    "loadFailed": "Failed to load monitoring data",
     "days": "days",
-    "unavailable": "N/A",
-
+    "unavailable": "Unavailable",
     "historyTrend": "Historical Trend",
     "resourceUsageTrends": "Resource Usage Trends",
     "cpuMemoryTrend": "CPU & Memory Usage Trend",
     "networkTrend": "Network Traffic Trend",
     "last15Minutes": "Last 15 Minutes",
     "last24Hours": "Last 24 Hours",
-
     "serviceStatus": "Service Status",
     "running": "Running",
     "disconnected": "Disconnected",
-    "connectionFailed": "Connection failed",
+    "connectionFailed": "Connection Failed",
     "connections": "Connections",
     "clients": "Clients",
     "networkInterfaces": "Network Interfaces",
     "noNetworkInterfaces": "No network interfaces detected",
     "internal": "Internal",
     "external": "External",
-
     "hours": "hours",
     "minutes": "minutes",
     "minute": "minute",
     "maxConnections": "Max Connections"
+  },
+  "article": {
+    "list": "Article List",
+    "create": "Create Article",
+    "edit": "Edit Article",
+    "title": "Title",
+    "titlePlaceholder": "Enter article title",
+    "contentPlaceholder": "Enter Markdown content...",
+    "titleRequired": "Please enter a title",
+    "titleMinLength": "Title must be at least 2 characters",
+    "contentRequired": "Please enter article content",
+    "status": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "deleted": "Article deleted successfully",
+    "created": "Article created successfully",
+    "updated": "Article updated successfully"
   }
 }

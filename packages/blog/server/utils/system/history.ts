@@ -12,6 +12,10 @@ const HOURLY_KEY = 'system:metrics:hourly'
 const TTL_24H = 24 * 60 * 60 // 86400 秒
 
 export function startMetricsCollection() {
+  console.log(
+    '[DEBUG] startMetricsCollection called, __metrics_collecting__ =',
+    globalThis.__metrics_collecting__
+  )
   if (globalThis.__metrics_collecting__) {
     console.warn('[Metrics] Already started globally, skip.')
     return

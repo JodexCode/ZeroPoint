@@ -28,7 +28,18 @@
   },
   "common": {
     "welcome": "欢迎回来",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "createdAt": "创建时间",
+    "actions": "操作",
+    "edit": "编辑",
+    "delete": "删除",
+    "confirmDelete": "确定要删除吗？",
+    "yes": "确定",
+    "no": "取消",
+    "status": "状态",
+    "cancel": "取消",
+    "save": "保存",
+    "publish": "发布"
   },
   "profile": {
     "avatar": {
@@ -42,12 +53,10 @@
     "performance": "性能指标",
     "systemInfoGroup": "系统信息",
     "systemDetails": "系统详情",
-
     "cpu": "处理器",
     "memory": "内存",
     "disks": "磁盘",
     "systemStatus": "系统状态",
-
     "usage": "使用率",
     "model": "型号",
     "cores": "{n} 核心",
@@ -56,7 +65,6 @@
     "freeMemory": "空闲内存",
     "used": "已用",
     "total": "总量",
-
     "noDisks": "未检测到磁盘",
     "uptime": "运行时间",
     "loadAverage": "平均负载",
@@ -65,22 +73,18 @@
     "os": "操作系统",
     "version": "版本号",
     "architecture": "架构",
-
     "loading": "加载中...",
     "refresh": "刷新",
     "noData": "暂无监控数据",
     "loadFailed": "加载监控数据失败",
     "days": "天",
     "unavailable": "不可用",
-
     "historyTrend": "历史趋势",
-
     "resourceUsageTrends": "资源使用趋势",
     "cpuMemoryTrend": "CPU 与内存使用趋势",
     "networkTrend": "网络流量趋势",
     "last15Minutes": "最近15分钟",
     "last24Hours": "最近24小时",
-
     "serviceStatus": "服务状态",
     "running": "运行中",
     "disconnected": "已断开",
@@ -91,10 +95,27 @@
     "noNetworkInterfaces": "未检测到网络接口",
     "internal": "内部",
     "external": "外部",
-
     "hours": "小时",
     "minutes": "分钟",
     "minute": "分钟",
     "maxConnections": "最大连接数"
+  },
+  "article": {
+    "list": "文章列表",
+    "create": "新建文章",
+    "edit": "编辑文章",
+    "title": "标题",
+    "titlePlaceholder": "请输入文章标题",
+    "contentPlaceholder": "请输入 Markdown 内容...",
+    "titleRequired": "请输入文章标题",
+    "titleMinLength": "标题至少2个字符",
+    "contentRequired": "请输入文章内容",
+    "status": {
+      "draft": "草稿",
+      "published": "已发布"
+    },
+    "deleted": "文章已删除",
+    "created": "文章创建成功",
+    "updated": "文章更新成功"
   }
 }

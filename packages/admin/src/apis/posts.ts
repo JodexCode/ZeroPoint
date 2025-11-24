@@ -1,0 +1,56 @@
+// packages/admin/src/apis/posts.ts
+import type {
+  CreatedPostData,
+  PostCreateParams,
+  PostItemRaw,
+  PostsListResponse,
+  PostUpdateParams,
+} from '@/types/post'
+import http from '@/utils/http'
+import type { ApiResponse } from '@/utils/http/types'
+
+/**
+ * 获取文章列表
+ */
+export function getPostsApi(
+  params: {
+    page?: number
+    limit?: number
+    status?: 'draft' | 'published'
+  } = {}
+): Promise<ApiResponse & { data: PostsListResponse }> {
+  return http.get('/api/admin/posts', { params })
+}
+
+/**
+ * 获取单篇文章详情
+ */
+export function getPostByIdApi(id: number | string): Promise<ApiResponse & { data: PostItemRaw }> {
+  return http.get(`/api/admin/posts/${id}`)
+}
+
+/**
+ * 创建新文章
+ */
+export function createPostApi(
+  data: PostCreateParams
+): Promise<ApiResponse & { data: CreatedPostData }> {
+  return http.post('/api/admin/posts', data)
+}
+
+/**
+ * 更新文章
+ */
+export function updatePostApi(
+  id: number | string,
+  data: PostUpdateParams
+): Promise<ApiResponse & { data: PostItemRaw }> {
+  return http.put(`/api/admin/posts/${id}`, data)
+}
+
+/**
+ * 删除文章
+ */
+export function deletePostApi(id: number | string): Promise<ApiResponse> {
+  return http.delete(`/api/admin/posts/${id}`)
+}
