@@ -14,7 +14,6 @@ const publicPaths = [
   '/api/logout',
   '/api/test/ping', // ✅ 公开健康检查
   // '/api/test/session' ← 不放行！因为它需要登录
-  '/api/upload/admin-avatar-sign',
 ]
 
 export default defineEventHandler(async event => {

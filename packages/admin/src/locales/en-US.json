@@ -41,7 +41,8 @@
     "save": "Save",
     "publish": "Publish",
     "refresh": "Refresh",
-    "loadFailed": "Load failed"
+    "loadFailed": "Load failed",
+    "uploadFailed": "Upload failed"
   },
   "profile": {
     "avatar": {
@@ -122,6 +123,13 @@
     "tags": "Tags",
     "tagFilter": "Filter by tag",
     "tagPlaceholder": "Select or type tag, Enter to create new",
-    "untagged": "Uncategorized"
+    "untagged": "Uncategorized",
+    "cover": "Cover Image",
+    "coverUploadSuccess": "Cover image uploaded successfully",
+    "coverDeleted": "Cover deleted",
+    "copySuccess": "Image URL copied",
+    "uploadProgress": "Upload Progress",
+    "uploading": "Uploading...",
+    "insertImage": "Insert Image"
   }
 }

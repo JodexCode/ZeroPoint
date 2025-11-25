@@ -1,71 +1,62 @@
-// server/middleware/logger.ts
 import { defineEventHandler } from 'h3'
 import { performance } from 'node:perf_hooks'
+import { randomUUID } from 'node:crypto'
+
+const isTTY = process.stdout.isTTY // 1. 自动开关颜色
+const NO_LOG_PATHS = ['/api/test/ping'] // 2. 可过滤高频探活接口
 
 const COLORS = {
-  reset: '\x1b[0m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  red: '\x1b[31m',
-  gray: '\x1b[90m',
-  cyan: '\x1b[36m',
-  blue: '\x1b[34m',
-  purple: '\x1b[35m',
+  reset: isTTY ? '\x1b[0m' : '',
+  green: isTTY ? '\x1b[32m' : '',
+  yellow: isTTY ? '\x1b[33m' : '',
+  red: isTTY ? '\x1b[31m' : '',
+  gray: isTTY ? '\x1b[90m' : '',
+  cyan: isTTY ? '\x1b[36m' : '',
+  blue: isTTY ? '\x1b[34m' : '',
 }
 
 function colorize(status: number) {
-  if (status >= 200 && status < 300) return COLORS.green
-  if (status >= 400 && status < 500) return COLORS.yellow
-  if (status >= 500) return COLORS.red
-  return COLORS.gray
+  if (status < 400) return COLORS.green
+  if (status < 500) return COLORS.yellow
+  return COLORS.red
 }
 
 function methodColor(method: string) {
-  const colors: Record<string, string> = {
+  const map: Record<string, string> = {
     GET: COLORS.cyan,
     POST: COLORS.green,
     PUT: COLORS.blue,
     DELETE: COLORS.red,
-    PATCH: COLORS.purple,
+    PATCH: COLORS.yellow,
   }
-  return colors[method] || COLORS.gray
+  return map[method] || COLORS.gray
 }
 
 function pad(str: string, len: number) {
-  return (str + ' '.repeat(len)).substring(0, len)
+  return (str + ' '.repeat(len)).slice(0, len)
 }
 
 export default defineEventHandler(event => {
+  const url = event.node.req.url ?? '/'
+  if (NO_LOG_PATHS.includes(url.split('?')[0])) return // 高频接口静默
+
   const start = performance.now()
-  const url = event.node.req.url || '/'
-  const method = event.node.req.method || 'UNKNOWN'
+  const method = event.node.req.method ?? 'UNKNOWN'
+  const reqId = randomUUID().slice(-6) // 3. 短请求ID
+  event.context.reqId = reqId // 供下游中间件/接口使用
 
-  // 监听响应结束
+  // 4. 监听 finish 再打印
   event.node.res.on('finish', () => {
-    const duration = Math.round(performance.now() - start)
-    const statusCode = event.node.res.statusCode
-    const color = colorize(statusCode)
-    const methodClr = methodColor(method)
-
-    const timestamp = new Date()
-      .toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      })
-      .replace(/\//g, '-')
-
-    const logLine =
-      `[${timestamp}] ` +
-      `${color}${pad(statusCode.toString(), 3)}${COLORS.reset} ` +
-      `${methodClr}${pad(method, 6)}${COLORS.reset} ` +
+    const cost = Math.round(performance.now() - start)
+    const status = event.node.res.statusCode
+    const log =
+      `[${new Date().toLocaleString('zh-CN', { hour12: false })}]` +
+      ` ${colorize(status)}${pad(status.toString(), 3)}${COLORS.reset}` +
+      ` ${methodColor(method)}${pad(method, 6)}${COLORS.reset}` +
+      ` [${reqId}] ` + // 请求ID
       `${pad(url.split('?')[0], 25)} ` +
-      `${COLORS.gray}${duration}ms${COLORS.reset}`
+      `${COLORS.gray}${cost}ms${COLORS.reset}`
 
-    console.log(logLine)
+    console.log(log)
   })
 })

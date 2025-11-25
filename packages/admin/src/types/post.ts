@@ -65,3 +65,9 @@ export interface CreatedPostData {
   status: 'draft' | 'published'
   createdAt: string // 后端驼峰
 }
+
+export interface UploadSign {
+  uploadUrl: string
+  fileUrl: string
+  key: string
+}

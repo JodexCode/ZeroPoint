@@ -45,6 +45,14 @@
             />
           </el-select>
         </el-form-item>
+
+        <el-form-item :label="t('article.cover')" prop="coverImage">
+          <CoverUpload v-model="form.coverImage" />
+        </el-form-item>
+
+        <el-form-item :label="t('article.insertImage')" class="no-label">
+          <MdEditorImageUpload />
+        </el-form-item>
       </el-form>
 
       <!-- 编辑器：自定义工具栏按钮 + 快捷键 -->
@@ -57,7 +65,6 @@
         editor-id="article-editor"
         :placeholder="t('article.contentPlaceholder')"
         :onHighlight="handleHighlight"
-        :defToolbars="defToolbars"
         style="height: 600px"
       />
 
@@ -90,6 +97,9 @@ import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
 import type { TagItem } from '@/types/post'
 
+import CoverUpload from '@/components/CoverUpload.vue'
+import MdEditorImageUpload from '@/components/MdEditorImageUpload.vue'
+
 const toolbars: ToolbarNames[] = [
   'bold',
   'italic',
@@ -118,18 +128,6 @@ const handleFormat = () => {
   txt = txt.replace(/(```[\s\S]*?```)/g, '\n\n$1\n\n')
   form.content = txt.trim()
 }
-
-/* ====== 自定义工具栏按钮 ====== */
-const defToolbars = h(
-  'button',
-  {
-    type: 'button',
-    class: 'md-editor-icon',
-    title: '格式化 Markdown（Ctrl+Shift+F）',
-    onClick: handleFormat,
-  },
-  ['🪄']
-)
 
 /* ====== 快捷键：Ctrl+Shift+F ====== */
 const handleKeyDown = async (e: KeyboardEvent) => {
@@ -171,16 +169,6 @@ const onTagEnter = () => closePanelAndClearInput()
 /* 点击下拉选项 */
 const onTagsChange = () => closePanelAndClearInput()
 
-/* 点击/键盘选选项后：如果下拉还开着，也收掉 */
-const onVisibleChange = (show: boolean) => {
-  if (!show) return // 下拉已关，无事可做
-  nextTick(() => {
-    // 等 DOM 更新完
-    const input = tagSelect.value?.$el.querySelector('input') as HTMLInputElement
-    if (input) input.value = '' // 清掉“正在敲的那串字”
-  })
-}
-
 /* ====== 其余业务逻辑（不变） ====== */
 const { t } = useI18n()
 const router = useRouter()
@@ -197,6 +185,7 @@ interface ArticleForm {
   content: string
   status: 'draft' | 'published'
   tags: string[]
+  coverImage?: string
 }
 
 const form = reactive<ArticleForm>({
@@ -227,6 +216,7 @@ const loadArticle = async (id: string) => {
       content: res.data.content,
       status: res.data.status,
       tags: res.data.tags || [],
+      coverImage: res.data.cover_image || '',
     })
   } catch {
     ElMessage.error(t('common.loadFailed'))
@@ -316,5 +306,9 @@ onDeactivated(() => {
   &:hover {
     background: var(--el-fill-color-light);
   }
+}
+
+.no-label .el-form-item__label {
+  display: none;
 }
 </style>

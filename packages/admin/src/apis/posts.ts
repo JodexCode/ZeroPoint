@@ -6,6 +6,7 @@ import type {
   PostsListResponse,
   PostUpdateParams,
   TagItem,
+  UploadSign,
 } from '@/types/post'
 import http from '@/utils/http'
 import type { ApiResponse } from '@/utils/http/types'
@@ -59,3 +60,12 @@ export function deletePostApi(id: number | string): Promise<ApiResponse> {
 
 export const getAllTagsApi = (): Promise<ApiResponse & { data: TagItem[] }> =>
   http.get('/api/admin/tags')
+
+export const getCoverSignApi = (data: { mimeType: string }) =>
+  http.post<UploadSign>('/api/upload/cover', data) // ← 直接返回 UploadSign
+
+export const getImageSignApi = (data: { mimeType: string }) =>
+  http.post<UploadSign>('/api/upload/image', data)
+
+export const deleteAssetsApi = (data: { keys: string[] }) =>
+  http.post<{ total: number; failed: { key: string; reason: any }[] }>('/api/upload/delete', data)

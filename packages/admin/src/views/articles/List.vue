@@ -47,6 +47,13 @@
       </div>
 
       <el-table :data="tableData" v-loading="loading" :style="{ width: '100%' }">
+        <el-table-column :label="t('article.cover')" width="120">
+          <template #default="{ row }">
+            <img v-if="row.cover_image" :src="row.cover_image" class="list-cover" />
+            <span v-else class="text-gray">-</span>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="title" :label="t('article.title')" min-width="200">
           <template #default="{ row }">
             <el-link type="primary" @click="handleEdit(row.id)">
@@ -216,5 +223,11 @@ onMounted(async () => {
   .text-gray {
     color: var(--el-text-color-placeholder);
   }
+}
+.list-cover {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 </style>

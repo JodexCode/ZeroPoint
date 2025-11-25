@@ -4,6 +4,7 @@ import http from '@/utils/http'
 export interface AvatarSignResponse {
   uploadUrl: string
   fileUrl: string
+  key: string
 }
 
 export function getAvatarUploadSign(data: {

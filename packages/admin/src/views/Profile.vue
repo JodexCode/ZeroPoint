@@ -73,8 +73,9 @@ import { ref, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Camera } from '@element-plus/icons-vue'
 import ImageCropper from '@/components/ImageCropper.vue'
-import { getAvatarUploadSign, updateAdminAvatar } from '@/apis/avatar'
 import { useAdminInfoStore } from '@/stores/adminInfo'
+import { uploadWithProgress } from '@/utils/upload'
+import { updateAdminAvatar } from '@/apis/avatar'
 
 const adminStore = useAdminInfoStore()
 
@@ -112,22 +113,15 @@ async function handleFileChange(e: Event) {
 async function handleCroppedImage(blob: Blob) {
   try {
     uploadPercent.value = 0
-    const res = await getAvatarUploadSign({ mimeType: blob.type || 'image/png' })
-    const signData = res.data
-
-    // 模拟进度
-    uploadPercent.value = 30
-    const uploadRes = await fetch(signData.uploadUrl, { method: 'PUT', body: blob })
-    if (!uploadRes.ok) throw new Error(`COS 上传失败: ${uploadRes.status}`)
-
-    uploadPercent.value = 100
-    await updateAdminAvatar({ avatarUrl: signData.fileUrl })
-    await adminStore.loadAdminInfo() // 刷新仓库
+    // Blob → File
+    const file = new File([blob], `avatar-${Date.now()}.png`, { type: blob.type })
+    const url = await uploadWithProgress(file, 'avatar', p => (uploadPercent.value = p))
+    await updateAdminAvatar({ avatarUrl: url })
+    await adminStore.loadAdminInfo()
     ElMessage.success('头像更新成功！')
   } catch (e: any) {
     ElMessage.error(e.message || '上传失败')
   } finally {
-    showCropper.value = false
     uploadPercent.value = 0
   }
 }

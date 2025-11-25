@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CoverUpload: typeof import('./../components/CoverUpload.vue')['default']
     CpuMemoryTrendChart: typeof import('./../components/CpuMemoryTrendChart.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -48,6 +49,7 @@ declare module 'vue' {
     ElUpload: typeof import('element-plus/es')['ElUpload']
     ImageCropper: typeof import('./../components/ImageCropper.vue')['default']
     LocaleSwitcher: typeof import('./../components/LocaleSwitcher.vue')['default']
+    MdEditorImageUpload: typeof import('./../components/MdEditorImageUpload.vue')['default']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
     NCheckbox: typeof import('naive-ui')['NCheckbox']

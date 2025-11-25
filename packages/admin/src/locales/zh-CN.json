@@ -41,7 +41,8 @@
     "save": "保存",
     "publish": "发布",
     "refresh": "刷新",
-    "loadFailed": "加载失败"
+    "loadFailed": "加载失败",
+    "uploadFailed": "上传失败"
   },
   "profile": {
     "avatar": {
@@ -122,6 +123,13 @@
     "tags": "标签",
     "tagFilter": "标签筛选",
     "tagPlaceholder": "输入或选择标签，回车创建新标签",
-    "untagged": "未分类"
+    "untagged": "未分类",
+    "cover": "封面图片",
+    "coverUploadSuccess": "封面图片上传成功",
+    "coverDeleted": "封面已删除",
+    "copySuccess": "图片地址已复制",
+    "uploadProgress": "上传进度",
+    "uploading": "上传中...",
+    "insertImage": "插入图片"
   }
 }
