@@ -2,11 +2,7 @@
 
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { h } from 'vue'
 import '@/types/router'
-
-// 内联文章模块布局组件：仅渲染子路由
-const ArticleModuleLayout = { render: () => h('router-view') }
 
 const routes: RouteRecordRaw[] = [
   {

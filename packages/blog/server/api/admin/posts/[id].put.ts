@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, createError } from 'h3'
 import { z } from 'zod'
 import { PostUpdateSchema } from '../../../schemas/post'
 import getDb from '../../../utils/db'
+import { setPostTags } from '../../../utils/tagService' // 引入标签服务
 
 export default defineEventHandler(async event => {
   const id = event.context.params?.id
@@ -35,6 +36,7 @@ export default defineEventHandler(async event => {
   }
 
   try {
+    // 更新文章基本信息
     const [updated] = await db('posts')
       .where({ id })
       .update({
@@ -43,10 +45,12 @@ export default defineEventHandler(async event => {
         excerpt: input.excerpt || null,
         cover_image: input.coverImage || null,
         status: input.status,
-        tags: input.tags || [],
         updated_at: db.fn.now(),
       })
       .returning('*')
+
+    // 更新文章的标签关系
+    await setPostTags(id, input.tags || [])
 
     return {
       success: true,

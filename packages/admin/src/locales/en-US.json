@@ -39,7 +39,9 @@
     "status": "Status",
     "cancel": "Cancel",
     "save": "Save",
-    "publish": "Publish"
+    "publish": "Publish",
+    "refresh": "Refresh",
+    "loadFailed": "Load failed"
   },
   "profile": {
     "avatar": {
@@ -116,6 +118,10 @@
     },
     "deleted": "Article deleted successfully",
     "created": "Article created successfully",
-    "updated": "Article updated successfully"
+    "updated": "Article updated successfully",
+    "tags": "Tags",
+    "tagFilter": "Filter by tag",
+    "tagPlaceholder": "Select or type tag, Enter to create new",
+    "untagged": "Uncategorized"
   }
 }

@@ -5,6 +5,7 @@ import type {
   PostItemRaw,
   PostsListResponse,
   PostUpdateParams,
+  TagItem,
 } from '@/types/post'
 import http from '@/utils/http'
 import type { ApiResponse } from '@/utils/http/types'
@@ -17,6 +18,7 @@ export function getPostsApi(
     page?: number
     limit?: number
     status?: 'draft' | 'published'
+    tag?: string | '_untagged'
   } = {}
 ): Promise<ApiResponse & { data: PostsListResponse }> {
   return http.get('/api/admin/posts', { params })
@@ -54,3 +56,6 @@ export function updatePostApi(
 export function deletePostApi(id: number | string): Promise<ApiResponse> {
   return http.delete(`/api/admin/posts/${id}`)
 }
+
+export const getAllTagsApi = (): Promise<ApiResponse & { data: TagItem[] }> =>
+  http.get('/api/admin/tags')

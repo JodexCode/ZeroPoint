@@ -1,54 +1,22 @@
 // packages/blog/server/api/admin/posts.get.ts
 import { defineEventHandler, getQuery, createError } from 'h3'
-import getDb from '../../utils/db'
+import { getPostList } from '../../utils/tagService' // 引入封装好的列表查询服务
 
 export default defineEventHandler(async event => {
   const query = getQuery(event)
   const page = Math.max(1, Number(query.page) || 1)
   const limit = Math.min(100, Number(query.limit) || 10)
-  const offset = (page - 1) * limit
-
   const statusFilter =
     query.status === 'draft' || query.status === 'published' ? query.status : undefined
+  const tagSlug = query.tag?.toString() || undefined // 新增标签过滤参数
 
   try {
-    const db = await getDb()
-
-    let countQuery = db('posts').count({ count: '*' })
-    if (statusFilter) countQuery = countQuery.where({ status: statusFilter })
-    const [{ count }] = await countQuery
-
-    let listQuery = db('posts')
-      .select(
-        'id',
-        'title',
-        'slug',
-        'status',
-        'views',
-        'created_at',
-        'updated_at',
-        'tags',
-        'excerpt'
-      )
-      .orderBy('created_at', 'desc')
-      .limit(limit)
-      .offset(offset)
-
-    if (statusFilter) listQuery = listQuery.where({ status: statusFilter })
-
-    const posts = await listQuery
+    // 调用封装好的列表查询服务
+    const data = await getPostList({ page, limit, status: statusFilter, tagSlug })
 
     return {
       success: true,
-      data: {
-        posts,
-        pagination: {
-          page,
-          limit,
-          total: Number(count),
-          totalPages: Math.ceil(Number(count) / limit),
-        },
-      },
+      data,
     }
   } catch (error) {
     console.error('获取文章列表失败:', error)

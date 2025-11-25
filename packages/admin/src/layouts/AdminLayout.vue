@@ -83,6 +83,7 @@
               v-for="child in item.children"
               :key="child.fullPath"
               :index="child.fullPath"
+              @click="handleMobileMenuSelect"
             >
               {{ t(child.meta.title) }}
             </el-menu-item>
@@ -133,7 +134,7 @@
       <div class="page-container">
         <RouterView v-slot="{ Component }">
           <keep-alive>
-            <component :is="Component" />
+            <component :is="Component" :key="$route.fullPath" />
           </keep-alive>
         </RouterView>
       </div>

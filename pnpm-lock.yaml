@@ -75,6 +75,9 @@ importers:
       '@types/node':
         specifier: ^22.18.11
         version: 22.19.1
+      '@types/prettier':
+        specifier: ^3.0.0
+        version: 3.0.0
       '@vitejs/plugin-vue':
         specifier: ^6.0.1
         version: 6.0.1(rolldown-vite@7.2.7(@types/node@22.19.1)(esbuild@0.25.12)(jiti@2.6.1)(sass@1.94.1)(terser@5.44.1)(yaml@2.8.1))(vue@3.5.24(typescript@5.9.3))
@@ -84,6 +87,9 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
       sass:
         specifier: ^1.94.1
         version: 1.94.1
@@ -1913,6 +1919,10 @@ packages:
   '@types/parse-path@7.1.0':
     resolution: {integrity: sha512-EULJ8LApcVEPbrfND0cRQqutIOdiIgJ1Mgrhpy755r14xMohPTEpkV/k28SJvuOs9bHRFW8x+KeDAEPiGQPB9Q==}
     deprecated: This is a stub types definition. parse-path provides its own type definitions, so you do not need this installed.
+
+  '@types/prettier@3.0.0':
+    resolution: {integrity: sha512-mFMBfMOz8QxhYVbuINtswBp9VL2b4Y0QqYHwqLz3YbgtfAcat2Dl6Y1o4e22S/OVE6Ebl9m7wWiMT2lSbAs1wA==}
+    deprecated: This is a stub types definition. prettier provides its own type definitions, so you do not need this installed.
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
@@ -7019,6 +7029,10 @@ snapshots:
   '@types/parse-path@7.1.0':
     dependencies:
       parse-path: 7.1.0
+
+  '@types/prettier@3.0.0':
+    dependencies:
+      prettier: 3.6.2
 
   '@types/resolve@1.20.2': {}
 

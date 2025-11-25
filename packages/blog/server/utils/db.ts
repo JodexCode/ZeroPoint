@@ -1,4 +1,4 @@
-// server/utils/db.ts
+// packages\blog\server\utils\db.ts
 import knex from 'knex'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'

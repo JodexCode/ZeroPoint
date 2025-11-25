@@ -39,7 +39,9 @@
     "status": "状态",
     "cancel": "取消",
     "save": "保存",
-    "publish": "发布"
+    "publish": "发布",
+    "refresh": "刷新",
+    "loadFailed": "加载失败"
   },
   "profile": {
     "avatar": {
@@ -116,6 +118,10 @@
     },
     "deleted": "文章已删除",
     "created": "文章创建成功",
-    "updated": "文章更新成功"
+    "updated": "文章更新成功",
+    "tags": "标签",
+    "tagFilter": "标签筛选",
+    "tagPlaceholder": "输入或选择标签，回车创建新标签",
+    "untagged": "未分类"
   }
 }

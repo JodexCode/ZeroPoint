@@ -1,4 +1,3 @@
-<!-- packages/admin/src/views/articles/List.vue -->
 <template>
   <div class="article-list">
     <el-card>
@@ -11,12 +10,62 @@
         </div>
       </template>
 
+      <!-- 过滤栏 -->
+      <div class="filter-bar">
+        <el-select
+          v-model="filter.status"
+          clearable
+          style="width: 130px; margin-right: 8px"
+          @change="fetchList"
+        >
+          <el-option value="draft" :label="t('article.status.draft')" />
+          <el-option value="published" :label="t('article.status.published')" />
+        </el-select>
+
+        <el-select
+          v-model="filter.tag"
+          clearable
+          filterable
+          allow-create
+          default-first-option
+          style="width: 200px; margin-right: 8px"
+          :placeholder="t('article.tagFilter')"
+          @change="fetchList"
+        >
+          <el-option
+            v-for="tag in tagOptions"
+            :key="tag.slug"
+            :label="`${tag.name} (${tag.used})`"
+            :value="tag.slug"
+          />
+          <el-option value="_untagged" :label="t('article.untagged')" />
+        </el-select>
+
+        <el-button @click="fetchList" size="small">
+          {{ t('common.refresh') }}
+        </el-button>
+      </div>
+
       <el-table :data="tableData" v-loading="loading" :style="{ width: '100%' }">
         <el-table-column prop="title" :label="t('article.title')" min-width="200">
           <template #default="{ row }">
             <el-link type="primary" @click="handleEdit(row.id)">
               {{ row.title }}
             </el-link>
+          </template>
+        </el-table-column>
+
+        <!-- 标签列 -->
+        <el-table-column :label="t('article.tags')" width="180">
+          <template #default="{ row }">
+            <el-space wrap>
+              <el-tag v-for="tag in row.tags || []" :key="tag" size="small" type="info">
+                {{ tag }}
+              </el-tag>
+              <span v-if="!row.tags?.length" class="text-gray">
+                {{ t('article.untagged') }}
+              </span>
+            </el-space>
           </template>
         </el-table-column>
 
@@ -77,18 +126,24 @@ import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 
-import { getPostsApi, deletePostApi } from '@/apis/posts'
-import type { PostItemRaw } from '@/types/post'
+import { getPostsApi, deletePostApi, getAllTagsApi } from '@/apis/posts'
+import type { PostItemRaw, TagItem } from '@/types/post'
 
 const { t } = useI18n()
 const router = useRouter()
 const loading = ref(false)
 const tableData = ref<PostItemRaw[]>([])
+const tagOptions = ref<TagItem[]>([])
 
 const pagination = reactive({
   page: 1,
   limit: 10,
   total: 0,
+})
+
+const filter = reactive({
+  status: '' as '' | 'draft' | 'published',
+  tag: '' as string | '_untagged',
 })
 
 const fetchList = async () => {
@@ -97,12 +152,19 @@ const fetchList = async () => {
     const res = await getPostsApi({
       page: pagination.page,
       limit: pagination.limit,
+      status: filter.status || undefined,
+      tag: filter.tag || undefined,
     })
     tableData.value = res.data.posts
     pagination.total = res.data.pagination.total
   } finally {
     loading.value = false
   }
+}
+
+const fetchTags = async () => {
+  const res = await getAllTagsApi()
+  tagOptions.value = res.data
 }
 
 const handleSizeChange = (size: number) => {
@@ -115,38 +177,44 @@ const handleCreate = () => {
   router.push({ name: 'ArticleCreate' })
 }
 
-const handleEdit = (id: number | string) => {
+const handleEdit = (id: string) => {
   router.push({ name: 'ArticleEdit', params: { id } })
 }
 
-const handleDelete = async (id: number | string) => {
+const handleDelete = async (id: string) => {
   try {
     await deletePostApi(id)
-    ElMessage.success(t('article.deleted')) // ✅ 添加成功提示
-    // 删除成功后刷新列表
+    ElMessage.success(t('article.deleted'))
     if (tableData.value.length === 1 && pagination.page > 1) {
       pagination.page -= 1
     }
     await fetchList()
-  } catch (error) {
-    // 错误已在 axios 拦截器中处理，此处可不重复处理
-    console.error('Delete failed:', error)
+  } catch {
+    /* 统一拦截器已提示 */
   }
 }
 
-onMounted(() => {
-  fetchList()
+onMounted(async () => {
+  await fetchTags()
+  await fetchList()
 })
 </script>
 
 <style scoped lang="scss">
 .article-list {
   padding: 20px;
-
   .list-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+  .filter-bar {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+  }
+  .text-gray {
+    color: var(--el-text-color-placeholder);
   }
 }
 </style>

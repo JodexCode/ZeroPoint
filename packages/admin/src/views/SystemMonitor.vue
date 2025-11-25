@@ -448,6 +448,21 @@ const getProgressColor = (percent: number): string => {
   return '#F56C6C'
 }
 
+// 进入缓存页时重启定时器
+onActivated(() => {
+  if (!updateInterval) {
+    updateInterval = setInterval(fetchData, 60000)
+  }
+})
+
+// 离开缓存页时清掉定时器
+onDeactivated(() => {
+  if (updateInterval) {
+    clearInterval(updateInterval)
+    updateInterval = null
+  }
+})
+
 onMounted(() => {
   initSystemInfo()
   fetchData()
@@ -458,6 +473,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (updateInterval !== null) {
     clearInterval(updateInterval)
+    updateInterval = null
   }
 })
 </script>
