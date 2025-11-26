@@ -1,6 +1,6 @@
-// packages/blog/server/api/admin/posts.get.ts
+// packages/blog/server/api/admin/posts/index.get.ts
 import { defineEventHandler, getQuery, createError } from 'h3'
-import { getPostList } from '../../utils/tagService' // 引入封装好的列表查询服务
+import { getPostList } from '../../../utils/tagService' // 引入封装好的列表查询服务
 
 export default defineEventHandler(async event => {
   const query = getQuery(event)

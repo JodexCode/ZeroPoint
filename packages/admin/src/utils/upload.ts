@@ -2,8 +2,17 @@
 import { getCoverSignApi, getImageSignApi } from '@/apis/posts'
 import { getAvatarUploadSign } from '@/apis/avatar'
 import type { UploadSign } from '@/types/post'
+import { getProjectCoverSignApi } from '@/apis/projects'
 
-type UploadType = 'cover' | 'image' | 'avatar'
+export type UploadType = 'cover' | 'image' | 'avatar' | 'projectCover'
+
+/** 映射表：UploadType → 获取签名的函数 */
+const signApiMap = {
+  cover: getCoverSignApi,
+  image: getImageSignApi,
+  avatar: getAvatarUploadSign,
+  projectCover: getProjectCoverSignApi,
+}
 
 /**
  * 通用带进度上传（封面 / 插图 / 头像）
@@ -17,8 +26,9 @@ export async function uploadWithProgress(
   type: UploadType,
   onProgress: (percent: number) => void
 ): Promise<string> {
-  const api =
-    type === 'cover' ? getCoverSignApi : type === 'avatar' ? getAvatarUploadSign : getImageSignApi
+  const api = signApiMap[type]
+  if (!api) throw new Error(`Unknown upload type: ${type}`)
+
   const res: UploadSign = (await api({ mimeType: file.type })).data
 
   return new Promise((resolve, reject) => {

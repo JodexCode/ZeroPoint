@@ -24,6 +24,7 @@
     "dashboard": "Dashboard",
     "articles": "Articles",
     "profile": "Profile",
+    "projects": "Projects",
     "systemMonitor": "System Monitor"
   },
   "common": {
@@ -42,7 +43,8 @@
     "publish": "Publish",
     "refresh": "Refresh",
     "loadFailed": "Load failed",
-    "uploadFailed": "Upload failed"
+    "uploadFailed": "Upload failed",
+    "none": "None"
   },
   "profile": {
     "avatar": {
@@ -131,5 +133,33 @@
     "uploadProgress": "Upload Progress",
     "uploading": "Uploading...",
     "insertImage": "Insert Image"
+  },
+  "projects": {
+    "list": "Projects",
+    "create": "Create Project",
+    "edit": "Edit Project",
+    "title": "Project Name",
+    "titlePlaceholder": "Enter project name",
+    "description": "Description",
+    "descriptionPlaceholder": "Brief description (≤500 chars)",
+    "techStack": "Tech Stack",
+    "techStackPlaceholder": "Type tech keyword, Enter to add",
+    "demoUrl": "Demo URL",
+    "demoUrlPlaceholder": "https://demo.example.com (optional)",
+    "repoUrl": "Repo URL",
+    "repoUrlPlaceholder": "https://github.com/xxx (optional)",
+    "priority": "Priority",
+    "priorityTip": "Larger number comes first, 0-999",
+    "priorityDesc": "Priority Desc",
+    "priorityAsc": "Priority Asc",
+    "createdAtDesc": "Newest First",
+    "createdAtAsc": "Oldest First",
+    "cover": "Cover Image",
+    "status": "Status",
+    "created": "Project created successfully",
+    "updated": "Project updated successfully",
+    "deleted": "Project deleted",
+    "demo": "Demo",
+    "repo": "Repo"
   }
 }

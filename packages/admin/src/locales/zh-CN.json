@@ -24,6 +24,7 @@
     "dashboard": "仪表盘",
     "articles": "文章管理",
     "profile": "个人设置",
+    "projects": "项目集",
     "systemMonitor": "系统监控"
   },
   "common": {
@@ -42,7 +43,8 @@
     "publish": "发布",
     "refresh": "刷新",
     "loadFailed": "加载失败",
-    "uploadFailed": "上传失败"
+    "uploadFailed": "上传失败",
+    "none": "无"
   },
   "profile": {
     "avatar": {
@@ -131,5 +133,33 @@
     "uploadProgress": "上传进度",
     "uploading": "上传中...",
     "insertImage": "插入图片"
+  },
+  "projects": {
+    "list": "项目集",
+    "create": "新建项目",
+    "edit": "编辑项目",
+    "title": "项目名称",
+    "titlePlaceholder": "请输入项目名称",
+    "description": "项目简介",
+    "descriptionPlaceholder": "简述项目亮点（≤500字）",
+    "techStack": "技术栈",
+    "techStackPlaceholder": "输入技术关键词，回车添加",
+    "demoUrl": "演示地址",
+    "demoUrlPlaceholder": "https://demo.example.com（可选）",
+    "repoUrl": "源码地址",
+    "repoUrlPlaceholder": "https://github.com/xxx（可选）",
+    "priority": "优先级",
+    "priorityTip": "数字越大越靠前，范围 0-999",
+    "priorityDesc": "优先级降序",
+    "priorityAsc": "优先级升序",
+    "createdAtDesc": "最新创建",
+    "createdAtAsc": "最早创建",
+    "cover": "封面图",
+    "status": "状态",
+    "created": "项目创建成功",
+    "updated": "项目更新成功",
+    "deleted": "项目已删除",
+    "demo": "演示",
+    "repo": "源码"
   }
 }

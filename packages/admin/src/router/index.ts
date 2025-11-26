@@ -46,6 +46,25 @@ const routes: RouteRecordRaw[] = [
         props: true,
         meta: { menu: false, title: 'article.edit' },
       },
+      {
+        path: 'projects',
+        name: 'Projects',
+        component: () => import('@/views/projects/List.vue'),
+        meta: { menu: true, title: 'nav.projects', icon: 'Collection' },
+      },
+      {
+        path: 'projects/new',
+        name: 'ProjectCreate',
+        component: () => import('@/views/projects/Edit.vue'),
+        meta: { menu: false, title: 'projects.create' },
+      },
+      {
+        path: 'projects/:id/edit',
+        name: 'ProjectEdit',
+        component: () => import('@/views/projects/Edit.vue'),
+        props: true,
+        meta: { menu: false, title: 'projects.edit' },
+      },
 
       {
         path: 'profile',

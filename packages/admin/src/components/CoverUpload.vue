@@ -8,7 +8,7 @@
       @change="onFileChange"
     />
     <div class="preview-box" @click="openFileDialog">
-      <img v-if="!!modelValue && modelValue.trim() !== ''" :src="modelValue" class="cover" />
+      <img v-if="modelValue" :src="modelValue" class="cover" />
       <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
     </div>
     <div v-if="modelValue" class="actions">
@@ -39,8 +39,8 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 const fileInput = ref<HTMLInputElement>()
 
-const props = defineProps<{ modelValue?: string }>()
-const emit = defineEmits<{ (e: 'update:modelValue', v?: string): void }>()
+const props = defineProps<{ modelValue?: string | null }>()
+const emit = defineEmits<{ (e: 'update:modelValue', v?: string | null): void }>()
 
 const percent = ref(0)
 
@@ -79,7 +79,7 @@ const removeCover = async () => {
   if (!props.modelValue) return
   const key = props.modelValue.split('/').pop()!
   await deleteAssetsApi({ keys: [`article/cover/${key}`] })
-  emit('update:modelValue', undefined)
+  emit('update:modelValue', null)
   ElMessage.success(t('article.coverDeleted'))
 }
 </script>

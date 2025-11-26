@@ -1,8 +1,9 @@
+// packages\blog\server\api\admin\posts\index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
-import { PostCreateSchema } from '../../schemas/post'
-import getDb from '../../utils/db'
-import { slugify } from '../../utils/slugify'
-import { setPostTags } from '../../utils/tagService' // ← 新增
+import { PostCreateSchema } from '../../../schemas/post'
+import getDb from '../../../utils/db'
+import { slugify } from '../../../utils/slugify'
+import { setPostTags } from '../../../utils/tagService' // ← 新增
 
 export default defineEventHandler(async event => {
   const body = await readBody(event)
