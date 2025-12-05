@@ -98,7 +98,7 @@ function isActive(path: string) {
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 99999;
   height: 56px;
   background: var(--nav-bg);
   backdrop-filter: blur(4px);

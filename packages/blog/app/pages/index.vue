@@ -13,7 +13,7 @@
 
       <div class="hero-container">
         <!-- 左侧头像 + 社交 -->
-        <div class="hero-left">
+        <div class="hero-left slide-in-left">
           <div class="avatar-spin">
             <div class="spin-ring"></div>
           </div>
@@ -28,7 +28,7 @@
         </div>
 
         <!-- 右侧文字 -->
-        <div class="hero-right">
+        <div class="hero-right slide-in-right">
           <div class="hello-badge">👋 欢迎来到我的数字世界</div>
           <h1 class="hero-title">
             我是 <span class="name-highlight">{{ title }}</span>
@@ -102,8 +102,9 @@ $about-shadow: var(--about-card-shadow);
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.25rem;
-  border-radius: 0.5rem;
+  width: 200px;
+  height: 64px;
+  border-radius: 32px;
   font-weight: 500;
   transition: all 0.3s ease;
   &.btn-primary {
@@ -194,13 +195,14 @@ $about-shadow: var(--about-card-shadow);
   z-index: 100;
   max-width: 1500px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 2rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 4vh;
   @media (min-width: 1024px) {
     flex-direction: row;
+    gap: 20rem;
   }
 }
 .hero-left {
@@ -219,12 +221,11 @@ $about-shadow: var(--about-card-shadow);
   pointer-events: none;
 }
 .spin-ring {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: -10px;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, $primary, #2dd4aa, $primary);
-  mask: radial-gradient(circle at center, transparent calc(100% - 4px), black 0);
-  -webkit-mask: radial-gradient(circle at center, transparent calc(100% - 4px), black 0);
+  border: 3px solid $primary;
+  filter: blur(1px);
 }
 
 /* 静止层 - 头像+状态点 */
@@ -240,6 +241,8 @@ $about-shadow: var(--about-card-shadow);
   object-fit: cover;
   border-radius: 50%;
   transition: transform 0.7s;
+  box-shadow: 0 1px 5px rgba(#000, 0.5);
+  animation: avatarRotate 20s linear infinite;
   .avatar-static:hover & {
     transform: scale(1.1);
   }
@@ -283,9 +286,9 @@ $about-shadow: var(--about-card-shadow);
   margin-bottom: 1.5rem;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
-  background: rgba($primary, 0.1);
-  color: $primary;
-  border: 1px solid rgba($primary, 0.2);
+  background: color-mix(in srgb, var(--primary) 20%, transparent);
+  color: var(--primary);
+  border: 1px solid color-mix(in srgb, var(--primary) 80%, transparent);
   font-size: 0.875rem;
 }
 .hero-title {
@@ -492,6 +495,65 @@ $about-shadow: var(--about-card-shadow);
 @media (max-width: 640px) {
   .btn {
     width: 100%;
+  }
+}
+
+/* 进入前状态 */
+// .slide-in-left {
+//   opacity: 0;
+//   transform: translate(-100px, 100px); /* 从左侧屏幕外进来 */
+// }
+// .slide-in-right {
+//   opacity: 0;
+//   transform: translate(100px, 100px); /* 从右侧屏幕外进来 */
+// }
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translate(-100px, 50px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50px, 0);
+  } /* ① 先升到目标Y */
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  } /* ② 再水平归位 */
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translate(100px, 50px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(50px, 0);
+  } /* ① 先升到目标Y */
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  } /* ② 再水平归位 */
+}
+
+/* 立即执行 */
+@media (prefers-reduced-motion: no-preference) {
+  .slide-in-left {
+    animation: slideInLeft 1s ease-out forwards;
+  }
+  .slide-in-right {
+    animation: slideInRight 1s ease-out forwards;
+  }
+}
+
+@keyframes avatarRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>
