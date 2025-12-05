@@ -2,7 +2,7 @@
   <div>
     <!-- ===== 英雄区 ===== -->
     <section class="hero">
-      <div class="hero-bg" />
+      <div class="hero-bg"></div>
       <div class="hero-shapes">
         <div class="shape shape-1" />
         <div class="shape shape-2" />
@@ -31,8 +31,7 @@
         <div class="hero-right">
           <div class="hello-badge">👋 欢迎来到我的数字世界</div>
           <h1 class="hero-title">
-            我是 <span class="name-highlight">{{ title[0] }}</span>
-            <span class="name-line">{{ title[1] }}</span>
+            我是 <span class="name-highlight">{{ title }}</span>
           </h1>
           <div class="typewriter-box">
             <div class="typewriter-placeholder">记录我的编程之旅</div>
@@ -63,9 +62,9 @@
     <section class="about-section">
       <div class="about-container">
         <div class="about-header">
-          <span class="decos">{</span>
+          <span class="decos decos-top">{</span>
           <h2><span class="code-comment">//</span>关于我</h2>
-          <span class="decos">}</span>
+          <span class="decos decos-bottom">}</span>
         </div>
         <p class="about-subtitle">
           前端开发 &nbsp;|&nbsp;技术宅&nbsp;|&nbsp;游戏狂魔&nbsp;|&nbsp;学生党
@@ -79,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-const title = ['Developer', '记录与分享']
+const title = '每天睡25小时'
 const minTitle = '这里是一段个人简介，可替换为后端返回的 minTitle。'
 const statList = [
   { num: '0+', label: '项目经验' },
@@ -95,6 +94,7 @@ $text: var(--text);
 $bg: var(--bg);
 $switch-alpha: var(--switch-bg-alpha);
 $shadow: var(--box-shadow);
+$about-shadow: var(--about-card-shadow);
 
 /* 1. 通用工具 */
 .btn {
@@ -132,7 +132,7 @@ $shadow: var(--box-shadow);
   transition: all 0.3s;
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    // box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -146,6 +146,7 @@ $shadow: var(--box-shadow);
   overflow: hidden;
 }
 .hero-bg {
+  z-index: -999;
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg, $primary 0%, $bg 50%, #2dd4aa 100%);
@@ -190,6 +191,7 @@ $shadow: var(--box-shadow);
   background-size: 50px 50px;
 }
 .hero-container {
+  z-index: 100;
   max-width: 1500px;
   margin: 0 auto;
   padding: 0 1rem;
@@ -291,6 +293,7 @@ $shadow: var(--box-shadow);
   font-weight: 700;
   margin-bottom: 1.5rem;
   line-height: 1.2;
+  color: $text;
   @media (min-width: 768px) {
     font-size: 4rem;
   }
@@ -361,7 +364,7 @@ $shadow: var(--box-shadow);
 
 /* -------------------- 3. 关于我 -------------------- */
 .about-section {
-  padding: 4rem 0;
+  padding: 6rem 0;
 }
 .about-container {
   max-width: 1200px;
@@ -373,11 +376,32 @@ $shadow: var(--box-shadow);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 3rem;
+  position: relative;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8rem;
+    height: 0.3rem;
+    background: linear-gradient(to right, transparent, $primary, transparent);
+    opacity: 0.8;
+  }
   .decos {
-    font-size: 2rem;
+    position: absolute;
+    font-size: 3rem;
     opacity: 0.2;
     color: $primary;
+  }
+  .decos-top {
+    top: -3rem;
+    left: -3rem;
+  }
+  .decos-bottom {
+    bottom: -3rem;
+    right: -3rem;
   }
   h2 {
     font-size: 2rem;
@@ -387,11 +411,14 @@ $shadow: var(--box-shadow);
     font-family: 'Fira Code', monospace;
     color: $primary;
     margin-right: 0.25rem;
+    font-weight: 900;
+    font-size: 36px;
   }
 }
 .about-subtitle {
   margin-bottom: 2rem;
   color: rgba($text, 0.7);
+  opacity: 0.8;
 }
 .bio-card {
   @extend .card;
@@ -402,6 +429,7 @@ $shadow: var(--box-shadow);
     color: rgba($text, 0.6);
     text-align: center;
   }
+  box-shadow: $about-shadow;
 }
 
 /* -------------------- 4. 动画 -------------------- */

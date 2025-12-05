@@ -1,6 +1,6 @@
 /* ===== 浅色默认值 ===== */
 :root {
-  --bg: #ffffff;
+  --bg: #f0f7ff;
   --text: #212121;
   --primary: #2a9d8f;
 
@@ -17,6 +17,8 @@
   /* 新增卡片变量 */
   --card-bg: rgba(255, 255, 255, 0.75);
   --card-border: rgba(0, 0, 0, 0.08);
+
+  --about-card-shadow: 0 0 20px #a5d5d5;
 }
 
 /* ===== 深色覆盖 ===== */
@@ -36,6 +38,8 @@ html[data-theme='dark'] {
   /* 新增卡片变量 */
   --card-bg: rgba(30, 41, 59, 0.75);
   --card-border: rgba(255, 255, 255, 0.08);
+
+  --about-card-shadow: 0 0 20px #27827d;
 }
 
 /* ===== 页面基础 ===== */
