@@ -1,0 +1,50 @@
+/* ===== 浅色默认值 ===== */
+:root {
+  --bg: #ffffff;
+  --text: #212121;
+  --primary: #2a9d8f;
+
+  // 主题切换按钮
+  --switch-bg: #d0d0d0;
+  --switch-dot: #fff;
+  --switch-bg-alpha: rgba(128, 128, 128, 0.25);
+  --switch-offset: 2px;
+  --box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+
+  // 导航栏
+  --nav-bg: #fefeff;
+
+  /* 新增卡片变量 */
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --card-border: rgba(0, 0, 0, 0.08);
+}
+
+/* ===== 深色覆盖 ===== */
+html[data-theme='dark'] {
+  --bg: #0a1a30;
+  --text: #e5e5e5;
+  --primary: #64ffda;
+
+  // 主题切换按钮
+  --switch-bg: #4a4a4a;
+  --switch-dot: #fff;
+  --switch-bg-alpha: rgba(180, 180, 180, 0.2);
+
+  // 导航栏
+  --nav-bg: #0a192f;
+
+  /* 新增卡片变量 */
+  --card-bg: rgba(30, 41, 59, 0.75);
+  --card-border: rgba(255, 255, 255, 0.08);
+}
+
+/* ===== 页面基础 ===== */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition:
+    background 0.35s,
+    color 0.35s;
+}

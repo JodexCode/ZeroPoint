@@ -1,14 +1,10 @@
 @use './reset.scss';
-
-// // Google Fonts
-@import url('https://fonts.font.im/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-// // HarmonyOS Sans
-@import url('https://cdn.jsdelivr.net/npm/harmonyos-sans@1.0.0/css/harmonyos-sans.min.css');
+@use './theme.scss';
 
 // 3. 设置全局字体栈
 :root {
-  font-family: 'Inter',
+  font-family:
+    'Inter',
     // 英文首选
     'HarmonyOS Sans SC',
     // 中文首选（SC = Simplified Chinese）
