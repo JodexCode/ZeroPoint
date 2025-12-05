@@ -25,7 +25,8 @@
     "articles": "Articles",
     "profile": "Profile",
     "projects": "Projects",
-    "systemMonitor": "System Monitor"
+    "systemMonitor": "System Monitor",
+    "siteSettings": "Site Settings"
   },
   "common": {
     "welcome": "Welcome back",
@@ -161,5 +162,34 @@
     "deleted": "Project deleted",
     "demo": "Demo",
     "repo": "Repo"
+  },
+  "siteSettings": {
+    "basic": "Basic Info",
+    "authorName": "Author Name",
+    "authorNamePlaceholder": "Enter your name",
+    "bio": "Bio",
+    "bioPlaceholder": "One sentence to introduce yourself",
+    "aboutMe": "About Me",
+    "aboutMePlaceholder": "Markdown supported",
+    "icp": "ICP Record",
+    "icpPlaceholder": "e.g. 闽ICP备2022011053号-1",
+    "police": "Police Record",
+    "policePlaceholder": "e.g. 闽公网安备35020602002570号",
+    "socials": "Social Accounts",
+    "addSocial": "Add Account",
+    "icon": "Icon",
+    "iconPlaceholder": "https://xxx.svg or /icon/github.svg",
+    "link": "Link",
+    "linkPlaceholder": "https://github.com/xxx ",
+    "tags": "Personal Tags",
+    "addTag": "Add Tag",
+    "tagText": "Tag Text",
+    "tagTextPlaceholder": "Within 4 characters",
+    "save": "Save",
+    "saved": "Saved successfully",
+    "saveFailed": "Save failed",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete?",
+    "iconLink": "Icon Link"
   }
 }

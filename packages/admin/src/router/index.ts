@@ -78,6 +78,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/SystemMonitor.vue'),
         meta: { menu: true, title: 'nav.systemMonitor', icon: 'Monitor' },
       },
+      {
+        path: 'site-settings',
+        name: 'SiteSettings',
+        component: () => import('@/views/SiteSettings.vue'),
+        meta: { menu: true, title: 'nav.siteSettings', icon: 'Setting' },
+      },
     ],
   },
   {

@@ -74,11 +74,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { AppName } from '@/config'
 
 const route = useRoute()
 const isOpen = ref(false)
 
-const title = ['Zero', 'Point']
+const title = [AppName.name1, AppName.name2]
 
 const navItems = [
   { name: '博客', path: '/blog' },

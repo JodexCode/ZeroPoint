@@ -25,7 +25,8 @@
     "articles": "文章管理",
     "profile": "个人设置",
     "projects": "项目集",
-    "systemMonitor": "系统监控"
+    "systemMonitor": "系统监控",
+    "siteSettings": "站点设置"
   },
   "common": {
     "welcome": "欢迎回来",
@@ -161,5 +162,34 @@
     "deleted": "项目已删除",
     "demo": "演示",
     "repo": "源码"
+  },
+  "siteSettings": {
+    "basic": "基本信息",
+    "authorName": "作者名",
+    "authorNamePlaceholder": "请输入作者名",
+    "bio": "一句话简介",
+    "bioPlaceholder": "一句话介绍你自己",
+    "aboutMe": "关于我",
+    "aboutMePlaceholder": "支持 Markdown",
+    "icp": "ICP 备案号",
+    "icpPlaceholder": "例：闽ICP备2022011053号-1",
+    "police": "网安备案号",
+    "policePlaceholder": "例：闽公网安备35020602002570号",
+    "socials": "社交媒体",
+    "addSocial": "新增账号",
+    "icon": "图标",
+    "iconPlaceholder": "https://xxx.svg  或 /icon/github.svg",
+    "link": "链接",
+    "linkPlaceholder": "https://github.com/xxx ",
+    "tags": "个人标签",
+    "addTag": "新增标签",
+    "tagText": "标签文字",
+    "tagTextPlaceholder": "4 个字以内",
+    "save": "保存",
+    "saved": "保存成功",
+    "saveFailed": "保存失败",
+    "delete": "删除",
+    "confirmDelete": "确定要删除吗？",
+    "iconLink": "图标链接"
   }
 }

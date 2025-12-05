@@ -13,6 +13,7 @@ const publicPaths = [
   '/api/login',
   '/api/logout',
   '/api/test/ping', // ✅ 公开健康检查
+  '/api/site/config',
   // '/api/test/session' ← 不放行！因为它需要登录
   '/',
   '/blog',
