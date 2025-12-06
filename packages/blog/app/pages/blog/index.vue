@@ -67,6 +67,22 @@ const totalPages = computed(() => (res.value as any)?.data?.pagination?.totalPag
 function go(newPage: number) {
   navigateTo({ query: { page: newPage } })
 }
+
+/* ===== SEO ===== */
+const {
+  public: { siteUrl },
+} = useRuntimeConfig()
+
+useHead({
+  title: `我的博客文章 - ZeroPoint | 每天睡25小时的个人博客`,
+  link: [{ rel: 'canonical', href: `${siteUrl}${route.fullPath}` }],
+})
+useSeoMeta({
+  description: '技术笔记、踩坑记录与偶尔的生活碎片。',
+  ogTitle: '我的博客文章 - ZeroPoint',
+  ogDescription: '技术笔记、踩坑记录与偶尔的生活碎片。',
+  ogUrl: `${siteUrl}${route.fullPath}`,
+})
 </script>
 
 <style scoped lang="scss">

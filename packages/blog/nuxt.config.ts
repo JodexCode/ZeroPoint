@@ -28,4 +28,9 @@ export default defineNuxtConfig({
       }),
     ],
   },
+  runtimeConfig: {
+    public: {
+      siteUrl: process.env.PUBLIC_SITE_URL || 'https://jodex.cn',
+    },
+  },
 })

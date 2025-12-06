@@ -125,7 +125,7 @@ const {
 )
 
 /* 计算属性 */
-const avatar = computed(() => site.value?.meta?.avatar || 'https://cos.jodex.cn/admin/admin.jpg')
+const avatar = computed(() => site.value?.meta?.avatar || '/head.jpg')
 const socials = computed(() => site.value?.socials || [])
 const tags = computed(() => site.value?.tags || [])
 
@@ -139,6 +139,22 @@ watchEffect(() => {
   ]
 })
 const aboutHtml = computed(() => renderMarkdown(site.value?.meta?.about_me || ''))
+
+const route = useRoute()
+// 读取你在 .env 配置的线上域名
+const {
+  public: { siteUrl },
+} = useRuntimeConfig()
+const canonical = `${siteUrl}${route.fullPath}`
+
+useHead({
+  title: `ZeroPoint - ${site?.value?.meta.author_name}的个人博客`,
+  link: [{ rel: 'canonical', href: canonical }],
+})
+
+useSeoMeta({
+  description: '记录代码、生活与思考，让数字世界多一点温度。',
+})
 </script>
 
 <style scoped lang="scss">

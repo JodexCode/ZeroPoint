@@ -115,6 +115,25 @@ const formatDate = (date: string) => {
 const goBack = () => {
   navigateTo('/blog')
 }
+
+/* ===== SEO ===== */
+const route = useRoute()
+const {
+  public: { siteUrl },
+} = useRuntimeConfig()
+const seoTitle = computed(() => `${post.value.title} - ZeroPoint`)
+const seoDesc = computed(() => post.value.excerpt || post.value.title)
+
+useHead({
+  title: seoTitle,
+  link: [{ rel: 'canonical', href: `${siteUrl}/blog/${route.params.slug}` }],
+})
+useSeoMeta({
+  description: seoDesc,
+  ogTitle: seoTitle,
+  ogDescription: seoDesc,
+  ogUrl: `${siteUrl}/blog/${route.params.slug}`,
+})
 </script>
 
 <style scoped lang="scss">
