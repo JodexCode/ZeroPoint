@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\profile\tags\index.get.ts
 import { defineEventHandler } from 'h3'
 import { listProfileTags } from '../../../../utils/profileService'
 

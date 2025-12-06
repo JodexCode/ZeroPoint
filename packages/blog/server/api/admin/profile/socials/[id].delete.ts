@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\profile\socials\[id].delete.ts
 import { defineEventHandler } from 'h3'
 import { deleteSocial } from '../../../../utils/profileService'
 

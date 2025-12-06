@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\profile\socials\[id].put.ts
 import { defineEventHandler, readBody } from 'h3'
 import { SocialSchema } from '../../../../schemas/profile'
 import { updateSocial } from '../../../../utils/profileService'

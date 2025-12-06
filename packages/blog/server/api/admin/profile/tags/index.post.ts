@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\profile\tags\index.post.ts
 import { defineEventHandler, readBody } from 'h3'
 import { ProfileTagSchema } from '../../../../schemas/profile'
 import { createProfileTag } from '../../../../utils/profileService'

@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\profile\index.get.ts
 import { defineEventHandler } from 'h3'
 import { getProfile } from '../../../utils/profileService'
 

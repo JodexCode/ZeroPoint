@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\posts\[id].get.ts
 import { defineEventHandler, createError } from 'h3'
 import getDb from '../../../utils/db'
 import { postDto } from '../../../utils/postDto' // ← 引入公用字段

@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\projects\[id].delete.ts
 import { defineEventHandler, createError } from 'h3'
 import getDb from '../../../utils/db'
 import { deleteObject } from '../../../utils/cos'

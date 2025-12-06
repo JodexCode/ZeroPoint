@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\projects\[id].get.ts
 import { defineEventHandler, createError } from 'h3'
 import getDb from '../../../utils/db'
 

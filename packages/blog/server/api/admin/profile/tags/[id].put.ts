@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\profile\tags\[id].put.ts
 import { defineEventHandler, readBody } from 'h3'
 import { ProfileTagSchema } from '../../../../schemas/profile'
 import { updateProfileTag } from '../../../../utils/profileService'

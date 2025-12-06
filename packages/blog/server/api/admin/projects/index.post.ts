@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\projects\index.post.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { ProjectCreateSchema, ProjectInput } from '../../../schemas/project'
 import getDb from '../../../utils/db'

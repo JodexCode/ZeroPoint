@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\projects\[id].put.ts
 import { defineEventHandler, readBody, createError } from 'h3'
 import { ProjectInput, ProjectUpdateSchema } from '../../../schemas/project'
 import getDb from '../../../utils/db'

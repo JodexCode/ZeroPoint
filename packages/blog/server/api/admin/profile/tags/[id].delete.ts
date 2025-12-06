@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\profile\tags\[id].delete.ts
 import { defineEventHandler } from 'h3'
 import { deleteProfileTag } from '../../../../utils/profileService'
 
