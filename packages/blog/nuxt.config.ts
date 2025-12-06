@@ -33,4 +33,8 @@ export default defineNuxtConfig({
       siteUrl: process.env.PUBLIC_SITE_URL || 'https://jodex.cn',
     },
   },
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' }, // 页面淡入淡出
+    layoutTransition: { name: 'layout', mode: 'out-in' }, // 布局切换也一起过渡
+  },
 })

@@ -14,3 +14,62 @@
     // Windows 中文备选
     sans-serif; // 通用 fallback
 }
+
+/* ================= 自定义滚动条 ================= */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  /* 主色 + 10% 透明度，随主题自动变 */
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--primary) 80%, #fff);
+}
+
+/* Firefox 兼容 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+#nuxt-loading-indicator {
+  background: var(--primary);
+  opacity: 0;
+  animation: fadeInOut 1.2s ease-out;
+}
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* 页面淡入淡出（可选） */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.4s;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
