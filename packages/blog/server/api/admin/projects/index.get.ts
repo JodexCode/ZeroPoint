@@ -1,3 +1,4 @@
+// packages\blog\server\api\admin\projects\index.get.ts
 import { defineEventHandler, getQuery } from 'h3'
 import getDb from '../../../utils/db'
 

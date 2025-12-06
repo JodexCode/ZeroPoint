@@ -72,8 +72,8 @@
               <div class="typewriter-placeholder">{{ site?.meta.bio }}</div>
             </div>
             <div class="hero-actions">
-              <a href="/blog" class="btn btn-primary">阅读博客</a>
-              <a href="/projects" class="btn btn-outline">查看项目</a>
+              <NuxtLink to="/blog" class="btn btn-primary">阅读博客</NuxtLink>
+              <NuxtLink to="/projects" class="btn btn-outline">查看项目</NuxtLink>
             </div>
             <div class="stats">
               <div

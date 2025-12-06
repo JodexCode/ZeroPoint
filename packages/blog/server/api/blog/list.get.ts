@@ -1,3 +1,4 @@
+// packages\blog\server\api\blog\list.get.ts
 import { defineEventHandler, getQuery } from 'h3'
 import { getPostList } from '../../utils/tagService'
 

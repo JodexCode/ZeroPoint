@@ -1,3 +1,4 @@
+// packages\blog\server\api\blog\[slug].get.ts
 import { defineEventHandler, getRouterParam, createError } from 'h3'
 import getDb from '../../utils/db'
 

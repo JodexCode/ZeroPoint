@@ -1,5 +1,9 @@
 <template>
   <div class="blog-index">
+    <header class="list-header">
+      <h1 class="title">words & notes</h1>
+      <p class="subtitle">偶尔写下的文字，记录踩坑、折腾与思考，愿也能为你的片刻带来一点启发。</p>
+    </header>
     <!-- 文章卡片 -->
     <div v-if="pending" class="loading-box">
       <svg class="spin" viewBox="0 0 50 50">
@@ -193,6 +197,24 @@ function go(newPage: number) {
       opacity: 0.4;
       cursor: not-allowed;
     }
+  }
+}
+
+/* ===== 头部引导 ===== */
+.list-header {
+  text-align: center;
+  margin: 0 auto 3rem;
+  max-width: 700px;
+  .title {
+    font-size: 2rem;
+    color: var(--primary);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    margin-top: 0.5rem;
+    color: rgba(var(--text), 0.8);
+    line-height: 1.6;
   }
 }
 </style>
