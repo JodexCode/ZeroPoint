@@ -18,7 +18,7 @@
     <!-- 2. 加载失败 -->
     <div v-else-if="error" class="error-box">
       <p>⚠️ 加载失败：{{ error }}</p>
-      <button class="btn btn-primary" @click="refresh">重新加载</button>
+      <button class="btn btn-primary" @click="() => refresh()">重新加载</button>
     </div>
 
     <!-- 3. 正常内容 -->
@@ -54,7 +54,10 @@
                 class="social-link"
                 :aria-label="s.name"
               >
-                <img :src="s.icon" @error="$event.target.textContent = '🔗'" />
+                <img
+                  :src="s.icon"
+                  @error="e => ((e.currentTarget as HTMLImageElement).textContent = '🔗')"
+                />
               </a>
             </div>
           </div>
@@ -63,10 +66,10 @@
           <div class="hero-right slide-in-right">
             <div class="hello-badge">👋 欢迎来到我的数字世界</div>
             <h1 class="hero-title">
-              我是 <span class="name-highlight">{{ site.meta.author_name }}</span>
+              我是 <span class="name-highlight">{{ site?.meta.author_name }}</span>
             </h1>
             <div class="typewriter-box">
-              <div class="typewriter-placeholder">{{ site.meta.bio }}</div>
+              <div class="typewriter-placeholder">{{ site?.meta.bio }}</div>
             </div>
             <div class="hero-actions">
               <a href="/blog" class="btn btn-primary">阅读博客</a>
@@ -290,7 +293,12 @@ const aboutHtml = computed(() => renderMarkdown(site.value?.meta?.about_me || ''
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+  transition: transform 0.7s;
   box-shadow: 0 1px 5px rgba(#000, 0.5);
+  animation: avatarRotate 20s linear infinite;
+  .avatar-static:hover & {
+    transform: scale(1.1);
+  }
 }
 .status-dot {
   position: absolute;
@@ -586,12 +594,82 @@ const aboutHtml = computed(() => renderMarkdown(site.value?.meta?.about_me || ''
     opacity: 0;
   }
 }
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  .typewriter-placeholder {
+    font-size: 1.125rem;
+  }
+  .hero-shapes .shape {
+    display: none;
+  }
+  .stats {
+    gap: 1rem;
+  }
+}
+@media (max-width: 640px) {
+  .btn {
+    width: 100%;
+  }
+}
+
+/* 进入前状态 */
+// .slide-in-left {
+//   opacity: 0;
+//   transform: translate(-100px, 100px); /* 从左侧屏幕外进来 */
+// }
+// .slide-in-right {
+//   opacity: 0;
+//   transform: translate(100px, 100px); /* 从右侧屏幕外进来 */
+// }
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translate(-100px, 50px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50px, 0);
+  } /* ① 先升到目标Y */
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  } /* ② 再水平归位 */
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translate(100px, 50px);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(50px, 0);
+  } /* ① 先升到目标Y */
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  } /* ② 再水平归位 */
+}
+
+/* 立即执行 */
 @media (prefers-reduced-motion: no-preference) {
   .slide-in-left {
     animation: slideInLeft 1s ease-out forwards;
   }
   .slide-in-right {
     animation: slideInRight 1s ease-out forwards;
+  }
+}
+
+@keyframes avatarRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

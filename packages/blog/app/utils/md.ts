@@ -1,11 +1,21 @@
 import MarkdownIt from 'markdown-it'
-
-const md = MarkdownIt({
-  html: true, // 允许 html 标签
-  linkify: true, // 自动识别链接
-  typographer: true, // 智能引号、破折号等
-})
+import hljs from 'highlight.js'
+import 'highlight.js/styles/github-dark.css'
 
 export function renderMarkdown(src: string): string {
+  const md: MarkdownIt = MarkdownIt({
+    html: true,
+    linkify: true,
+    typographer: true,
+    highlight(str, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          // highlight 返回 string，无需再包一层 md.utils.escapeHtml
+          return `<pre class="hljs"><code>${hljs.highlight(str, { language: lang }).value}</code></pre>`
+        } catch {}
+      }
+      return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`
+    },
+  })
   return md.render(src || '')
 }
