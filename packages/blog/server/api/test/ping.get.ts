@@ -1,6 +1,6 @@
 // server/api/test/ping.get.ts
 import { defineEventHandler } from 'h3'
-import getDb from '../../utils/db'
+import { query } from '../../utils/db' // ← 唯一正确的导入
 import getRedisClient from '../../utils/redis'
 import { getI18n } from '../../utils/i18n'
 
@@ -13,10 +13,9 @@ export default defineEventHandler(async event => {
   const dbResult = { connected: false, message: '', error: null as string | null }
   const redisResult = { connected: false, message: '', error: null as string | null }
 
-  // 检查数据库
+  // --- PostgreSQL 健康检查（原生 pg）---
   try {
-    const db = await getDb()
-    await db.raw('SELECT 1')
+    await query('SELECT 1') // ← 直接使用原生 query，无 Knex
     dbResult.connected = true
     dbResult.message = t('dbOk')
   } catch (err: any) {
@@ -25,7 +24,7 @@ export default defineEventHandler(async event => {
     dbResult.message = t('dbFail', { error: errorMsg })
   }
 
-  // 检查 Redis
+  // --- Redis 健康检查 ---
   try {
     const redis = await getRedisClient()
     await redis.ping()

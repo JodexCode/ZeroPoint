@@ -1,23 +1,48 @@
 // packages\blog\server\utils\db.ts
-import knex from 'knex'
-import { resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { Pool, PoolConfig } from 'pg'
+import dotenv from 'dotenv'
+import { parse } from 'pg-connection-string'
 
-let dbInstance: ReturnType<typeof knex> | null = null
+dotenv.config()
 
-export default async function getDb() {
-  if (!dbInstance) {
-    // 获取绝对路径
-    const knexfilePath = resolve(process.cwd(), 'knexfile.js')
+let pool: Pool | null = null
 
-    // 转换为 file:// URL
-    const knexfileUrl = pathToFileURL(knexfilePath).href
-
-    // 动态导入
-    const configModule = await import(knexfileUrl)
-    const config = configModule.default || configModule
-
-    dbInstance = knex(config)
+function createPool(): Pool {
+  const dbUrl = process.env.DATABASE_URL
+  if (!dbUrl) {
+    throw new Error('DATABASE_URL is not defined in environment variables')
   }
-  return dbInstance
+
+  const parsed = parse(dbUrl)
+
+  // 安全地提取配置，将 null 转为 undefined（符合 PoolConfig 要求）
+  const config: PoolConfig = {
+    host: parsed.host || undefined,
+    port: parsed.port ? parseInt(parsed.port, 10) : undefined,
+    database: parsed.database || undefined,
+    user: parsed.user || undefined,
+    password: parsed.password || undefined,
+    ssl: parsed.ssl === 'true' || parsed.ssl === true ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+  }
+
+  return new Pool(config)
+}
+
+export function getDbPool(): Pool {
+  if (!pool) {
+    pool = createPool()
+  }
+  return pool
+}
+
+export async function query(text: string, params?: any[]) {
+  const client = await getDbPool().connect()
+  try {
+    return await client.query(text, params)
+  } finally {
+    client.release()
+  }
 }

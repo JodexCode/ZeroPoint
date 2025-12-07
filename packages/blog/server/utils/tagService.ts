@@ -1,48 +1,50 @@
-// packages\blog\server\utils\tagService.ts
-import getDb from './db'
-import { postDto } from './postDto'
-import { slugify } from './slugify' // ← 1. 引入拼音函数
+// packages/blog/server/utils/tagService.ts
+import { getDbPool, query } from './db'
+import { getPostSelectFields } from './postDto'
+import { slugify } from './slugify'
+import type { PoolClient } from 'pg'
 
 /* 写入标签（事务内自动建标签+去重 + 拼音化） */
-export async function setPostTags(postId: string, rawNames: string[]) {
-  const db = await getDb()
-  const names = [...new Set(rawNames.map(t => t.toLowerCase().trim()).filter(Boolean))]
-
-  await db.transaction(async trx => {
-    if (names.length) {
-      // 2. 中文 → 拼音 slug 入库
-      await trx('tags')
-        .insert(names.map(n => ({ name: n, slug: slugify(n) })))
-        .onConflict('name')
-        .ignore()
-    }
-    const tagIds = await trx('tags').whereIn('name', names).pluck('id')
-    await trx('post_tags').where({ post_id: postId }).del()
-    if (tagIds.length) {
-      await trx('post_tags').insert(tagIds.map(tagId => ({ post_id: postId, tag_id: tagId })))
-    }
-  })
+export async function setPostTags(postId: number, rawNames: string[]): Promise<void> {
+  const pool = getDbPool()
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    await setPostTagsInTransaction(client, postId, rawNames)
+    await client.query('COMMIT')
+  } catch (e) {
+    await client.query('ROLLBACK')
+    throw e
+  } finally {
+    client.release()
+  }
 }
 
-/* 前端下拉：全部标签 + 使用次数（used 转数字） */
+/* 前端下拉：全部标签 + 使用次数 */
 export async function getAllTags(count = 100) {
-  const db = await getDb()
-  const tags = await db('tags')
-    .leftJoin('post_tags', 'tags.id', 'post_tags.tag_id')
-    .leftJoin('posts', function () {
-      this.on('posts.id', '=', 'post_tags.post_id').andOnVal('posts.status', '=', 'published')
-    })
-    .groupBy('tags.id')
-    .select('tags.id', 'tags.name', 'tags.slug')
-    .count('* as used')
-    .orderBy('used', 'desc')
-    .limit(count)
-
-  // 3. 顺手把 used 转数字（BigInt → Number）
-  return tags.map(t => ({ ...t, used: Number(t.used) }))
+  const res = await query(
+    `
+      SELECT
+        tags.id,
+        tags.name,
+        tags.slug,
+        COUNT(posts.id) AS used
+      FROM tags
+      LEFT JOIN post_tags ON tags.id = post_tags.tag_id
+      LEFT JOIN posts ON post_tags.post_id = posts.id AND posts.status = 'published'
+      GROUP BY tags.id
+      ORDER BY used DESC, tags.name ASC
+      LIMIT $1
+    `,
+    [count]
+  )
+  return res.rows.map(row => ({
+    ...row,
+    used: Number(row.used),
+  }))
 }
 
-/* 统一列表查询（支持按标签过滤、未分类） */
+/* 统一列表查询 */
 export async function getPostList({
   page = 1,
   limit = 10,
@@ -54,44 +56,116 @@ export async function getPostList({
   status?: 'draft' | 'published'
   tagSlug?: string
 }) {
-  const db = await getDb()
   const offset = (page - 1) * limit
+  const selectFields = getPostSelectFields()
 
-  let base = db('posts').modify(q => {
-    if (status) q.where('posts.status', status)
-    if (tagSlug) {
-      if (tagSlug === '_untagged') {
-        q.leftJoin('post_tags', 'posts.id', 'post_tags.post_id').whereNull('post_tags.tag_id')
-      } else {
-        q.join('post_tags', 'posts.id', 'post_tags.post_id')
-          .join('tags', 'tags.id', 'post_tags.tag_id')
-          .where('tags.slug', tagSlug)
-      }
+  let baseQuery = ''
+  let countQuery = ''
+  const params: any[] = []
+  let paramIndex = 1
+
+  if (tagSlug === '_untagged') {
+    baseQuery = `
+      FROM posts
+      LEFT JOIN post_tags ON posts.id = post_tags.post_id
+      WHERE post_tags.tag_id IS NULL
+    `
+    countQuery = baseQuery
+    if (status) {
+      baseQuery += ` AND posts.status = $${paramIndex}`
+      countQuery += ` AND posts.status = $${paramIndex}`
+      params.push(status)
+      paramIndex++
     }
-  })
+  } else if (tagSlug) {
+    baseQuery = `
+      FROM posts
+      INNER JOIN post_tags ON posts.id = post_tags.post_id
+      INNER JOIN tags ON post_tags.tag_id = tags.id
+      WHERE tags.slug = $${paramIndex}
+    `
+    countQuery = baseQuery
+    params.push(tagSlug)
+    paramIndex++
+    if (status) {
+      baseQuery += ` AND posts.status = $${paramIndex}`
+      countQuery += ` AND posts.status = $${paramIndex}`
+      params.push(status)
+      paramIndex++
+    }
+  } else {
+    baseQuery = 'FROM posts'
+    countQuery = baseQuery
+    if (status) {
+      baseQuery += ` WHERE posts.status = $${paramIndex}`
+      countQuery += ` WHERE posts.status = $${paramIndex}`
+      params.push(status)
+      paramIndex++
+    }
+  }
 
-  const [{ count }] = await base.clone().count('* as count')
+  // 获取总数
+  const countRes = await query(`SELECT COUNT(*) AS count ${countQuery}`, params)
+  const total = Number(countRes.rows[0].count)
 
-  const tagSubQuery = db
-    .select(db.raw('json_agg(tags.name order by tags.name)'))
-    .from('post_tags')
-    .join('tags', 'tags.id', 'post_tags.tag_id')
-    .whereRaw('post_tags.post_id = posts.id')
-    .as('tags')
-
-  const posts = await base
-    .select([...(await postDto()), tagSubQuery])
-    .orderBy('posts.created_at', 'desc')
-    .offset(offset)
-    .limit(limit)
+  // 获取分页数据
+  const dataParams = [...params, limit, offset]
+  const postsRes = await query(
+    `
+      SELECT ${selectFields}
+      ${baseQuery}
+      ORDER BY posts.created_at DESC
+      LIMIT $${params.length + 1}
+      OFFSET $${params.length + 2}
+    `,
+    dataParams
+  )
 
   return {
-    posts,
+    posts: postsRes.rows,
     pagination: {
       page,
       limit,
-      total: Number(count),
-      totalPages: Math.ceil(Number(count) / limit),
+      total,
+      totalPages: Math.ceil(total / limit),
     },
+  }
+}
+
+export async function setPostTagsInTransaction(
+  client: PoolClient,
+  postId: number,
+  rawNames: string[]
+): Promise<void> {
+  const names = [...new Set(rawNames.map(t => t.toLowerCase().trim()).filter(Boolean))]
+
+  // 清空旧关联
+  await client.query('DELETE FROM post_tags WHERE post_id = $1', [postId])
+
+  if (names.length === 0) {
+    return
+  }
+
+  // 批量插入标签（安全方式）
+  await client.query(
+    `
+      INSERT INTO tags (name, slug)
+      SELECT unnest($1::text[]), unnest($2::text[])
+      ON CONFLICT (name) DO NOTHING
+    `,
+    [names, names.map(slugify)]
+  )
+
+  // 获取标签 ID
+  const tagIdsRes = await client.query(`SELECT id FROM tags WHERE name = ANY($1::text[])`, [names])
+  const tagIds = tagIdsRes.rows.map(r => r.id)
+
+  // 插入新关联
+  if (tagIds.length > 0) {
+    const placeholders = tagIds.map((_, i) => `($1, $${i + 2})`).join(', ')
+    await client.query(`INSERT INTO post_tags (post_id, tag_id) VALUES ${placeholders}`, [
+      postId,
+      ...tagIds,
+    ])
   }
 }

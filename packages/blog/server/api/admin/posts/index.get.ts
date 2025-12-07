@@ -1,6 +1,6 @@
 // packages/blog/server/api/admin/posts/index.get.ts
 import { defineEventHandler, getQuery, createError } from 'h3'
-import { getPostList } from '../../../utils/tagService' // 引入封装好的列表查询服务
+import { getPostList } from '../../../utils/tagService'
 
 export default defineEventHandler(async event => {
   const query = getQuery(event)
@@ -8,10 +8,9 @@ export default defineEventHandler(async event => {
   const limit = Math.min(100, Number(query.limit) || 10)
   const statusFilter =
     query.status === 'draft' || query.status === 'published' ? query.status : undefined
-  const tagSlug = query.tag?.toString() || undefined // 新增标签过滤参数
+  const tagSlug = query.tag?.toString() || undefined
 
   try {
-    // 调用封装好的列表查询服务
     const data = await getPostList({ page, limit, status: statusFilter, tagSlug })
 
     return {

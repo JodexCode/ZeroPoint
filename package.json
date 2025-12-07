@@ -12,7 +12,10 @@
     "clean": "node scripts/clean.mjs",
     "reset": "pnpm clean:all && pnpm install",
     "lint": "oxlint . --fix -D correctness --ignore-path .gitignore",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "db:migrate": "pnpm --filter blog exec tsx scripts/runMigrations.ts",
+    "db:seed": "pnpm --filter blog exec tsx scripts/runSeeds.ts",
+    "db:reset": "pnpm run db:migrate && pnpm run db:seed"
   },
   "keywords": [],
   "author": "",

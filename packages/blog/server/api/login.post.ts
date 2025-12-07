@@ -1,7 +1,7 @@
 // packages/blog/server/api/login.post.ts
 import { defineEventHandler, readBody, setCookie, createError } from 'h3'
 import { z, ZodError } from 'zod'
-import getDb from '../utils/db'
+import { query } from '../utils/db' // ← 使用原生 query
 import bcrypt from 'bcrypt'
 import { nanoid } from 'nanoid'
 import type { AdminSessionData } from '../types/session'
@@ -22,9 +22,6 @@ function extractZodErrorMessages(error: ZodError): string[] {
 }
 
 export default defineEventHandler(async event => {
-  // 获取数据库实例
-  const db = await getDb()
-
   // 解析并验证输入
   let input
   try {
@@ -32,7 +29,6 @@ export default defineEventHandler(async event => {
     input = LoginSchema.parse(body)
   } catch (error) {
     if (error instanceof ZodError) {
-      // 返回扁平 errors 数组，前端可直接使用
       throw createError({
         statusCode: 400,
         message: '请求参数错误',
@@ -46,14 +42,17 @@ export default defineEventHandler(async event => {
 
   const { username, password } = input
 
-  // 查询管理员
-  const admin = await db('admins')
-    .where({ username })
-    .select('id', 'username', 'password_hash', 'nickname', 'avatar_url')
-    .first()
+  // 查询管理员（使用原生 SQL）
+  const res = await query(
+    `SELECT id, username, password_hash, nickname, avatar_url
+     FROM admins
+     WHERE username = $1`,
+    [username]
+  )
+  const admin = res.rows[0]
 
   if (!admin) {
-    // 防止用户名枚举攻击：统一返回相同错误
+    // 防止用户名枚举：统一返回相同错误
     throw createError({
       statusCode: 401,
       message: '用户名或密码错误',
@@ -77,7 +76,7 @@ export default defineEventHandler(async event => {
     adminId: admin.id,
     username: admin.username,
     createdAt: Date.now(),
-    nickname: admin.nickname || admin.username, // 👈 回退到 username
+    nickname: admin.nickname || admin.username,
     avatarUrl: admin.avatar_url || null,
   }
   await sessionStore.set(sessionToken, sessionData)
@@ -91,7 +90,6 @@ export default defineEventHandler(async event => {
     path: '/',
   })
 
-  // 返回成功响应
   return {
     success: true,
     message: '登录成功',

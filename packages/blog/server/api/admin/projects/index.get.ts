@@ -1,6 +1,6 @@
-// packages\blog\server\api\admin\projects\index.get.ts
+// packages/blog/server/api/admin/projects/index.get.ts
 import { defineEventHandler, getQuery } from 'h3'
-import getDb from '../../../utils/db'
+import { query } from '../../../utils/db' // 使用统一的查询工具
 
 export default defineEventHandler(async event => {
   const q = getQuery(event)
@@ -10,17 +10,34 @@ export default defineEventHandler(async event => {
   const sort = q.sort === 'createdAt' ? 'created_at' : 'priority' // 默认 priority
   const order = q.order === 'asc' ? 'asc' : 'desc'
 
-  const db = await getDb()
-  let base = db('projects').modify(builder => {
-    if (status) builder.where('status', status)
-  })
+  // 计算总数量和总页数
+  let countQuery = 'SELECT COUNT(*) FROM projects'
+  let conditions = []
+  let values = []
 
-  const [{ count }] = await base.clone().count('* as count')
-  const rows = await base
-    .orderBy(sort, order)
-    .orderBy('created_at', 'desc') // 次级排序
-    .limit(limit)
-    .offset((page - 1) * limit)
+  if (status) {
+    conditions.push('status = $1')
+    values.push(status)
+  }
+
+  if (conditions.length > 0) {
+    countQuery += ' WHERE ' + conditions.join(' AND ')
+  }
+
+  const { rows: countRows } = await query(countQuery, values)
+  const total = parseInt(countRows[0].count, 10)
+
+  // 获取项目列表
+  let selectQuery = `
+    SELECT * FROM projects
+    ${status ? 'WHERE status = $1' : ''}
+    ORDER BY ${sort} ${order}, created_at desc
+    LIMIT $${values.length + 1} OFFSET $${values.length + 2}
+  `
+
+  values.push(limit, (page - 1) * limit) // 添加limit和offset参数
+
+  const { rows } = await query(selectQuery, values)
 
   return {
     success: true,
@@ -29,8 +46,8 @@ export default defineEventHandler(async event => {
       pagination: {
         page,
         limit,
-        total: Number(count),
-        totalPages: Math.ceil(Number(count) / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     },
   }

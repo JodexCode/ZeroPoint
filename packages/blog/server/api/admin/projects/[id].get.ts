@@ -1,14 +1,20 @@
-// packages\blog\server\api\admin\projects\[id].get.ts
+// packages/blog/server/api/admin/projects/[id].get.ts
 import { defineEventHandler, createError } from 'h3'
-import getDb from '../../../utils/db'
+import { query } from '../../../utils/db' // ← 正确导入统一 query
 
 export default defineEventHandler(async event => {
   const id = event.context.params?.id
-  if (!id) throw createError({ statusCode: 400, message: '缺少 id' })
+  if (!id) {
+    throw createError({ statusCode: 400, message: '缺少 id' })
+  }
 
-  const db = await getDb()
-  const row = await db('projects').where({ id }).first()
-  if (!row) throw createError({ statusCode: 404, message: '项目不存在' })
+  const res = await query(`SELECT * FROM projects WHERE id = $1`, [id])
+
+  const row = res.rows[0]
+
+  if (!row) {
+    throw createError({ statusCode: 404, message: '项目不存在' })
+  }
 
   return { success: true, data: row }
 })

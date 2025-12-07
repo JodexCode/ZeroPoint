@@ -1,3 +1,4 @@
+// packages\blog\server\schemas\profile.ts
 import { z } from 'zod'
 
 export const SocialSchema = z.object({
