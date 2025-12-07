@@ -30,6 +30,7 @@
   "devDependencies": {
     "@nuxtjs/i18n": "10.1.0",
     "@types/bcrypt": "^6.0.0",
+    "@types/pg": "^8.15.6",
     "pg-connection-string": "^2.9.1",
     "sass": "^1.94.1",
     "tsx": "^4.21.0",

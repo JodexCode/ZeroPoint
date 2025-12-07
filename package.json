@@ -15,7 +15,8 @@
     "format": "prettier . --write",
     "db:migrate": "pnpm --filter blog exec tsx scripts/runMigrations.ts",
     "db:seed": "pnpm --filter blog exec tsx scripts/runSeeds.ts",
-    "db:reset": "pnpm run db:migrate && pnpm run db:seed"
+    "db:reset": "pnpm run db:migrate && pnpm run db:seed",
+    "preview": "pnpm --filter blog run preview"
   },
   "keywords": [],
   "author": "",

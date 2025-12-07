@@ -7,16 +7,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/i18n'],
   css: ['@/assets/styles/main.scss'],
-  // i18n: {
-  //   vueI18n: './i18n.config.ts',
-  //   locales: [
-  //     { code: 'en', name: 'English' },
-  //     { code: 'zh', name: '中文' },
-  //   ],
-  //   defaultLocale: 'zh',
-  //   strategy: 'no_prefix',
-  //   detectBrowserLanguage: false,
-  // },
+
   vite: {
     plugins: [
       AutoImport({
@@ -34,7 +25,7 @@ export default defineNuxtConfig({
     },
   },
   app: {
-    pageTransition: { name: 'page', mode: 'out-in' }, // 页面淡入淡出
-    layoutTransition: { name: 'layout', mode: 'out-in' }, // 布局切换也一起过渡
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'layout', mode: 'out-in' },
   },
 })
