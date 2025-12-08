@@ -555,6 +555,15 @@ useSeoMeta({
       border-radius: 0.5rem;
       margin: 1rem 0;
     }
+    :deep(.hljs) {
+      display: block;
+      padding: 1em;
+      margin: 0.5em 0;
+      border-radius: 8px;
+      background: var(--hljs-bg, #282a36); // Dracula 默认背景
+      color: var(--hljs-text, #f8f8f2);
+      overflow-x: auto;
+    }
   }
 }
 .beian {
