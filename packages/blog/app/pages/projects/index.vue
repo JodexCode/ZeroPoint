@@ -21,20 +21,20 @@
     <!-- 项目卡片 -->
     <div v-else class="cards">
       <article v-for="p in list" :key="p.id" class="card">
-        <a :href="p.homepage || p.repo_url" target="_blank" class="cover-box">
+        <a :href="p.demo_url || p.repo_url" target="_blank" class="cover-box">
           <img :src="p.cover_image || '/placeholder.jpg'" :alt="p.name" />
         </a>
         <div class="meta">
           <time>{{ dayjs(p.created_at).format('YYYY-MM-DD') }}</time>
         </div>
         <h2 class="name">
-          <a :href="p.homepage || p.repo_url" target="_blank">
+          <a :href="p.demo_url || p.repo_url" target="_blank">
             {{ p.name }}
           </a>
         </h2>
         <p class="desc">{{ p.description }}</p>
         <div class="links">
-          <a v-if="p.homepage" :href="p.homepage" target="_blank">🔗 预览</a>
+          <a v-if="p.demo_url" :href="p.demo_url" target="_blank">🔗 预览</a>
           <a v-if="p.repo_url" :href="p.repo_url" target="_blank">⭐ 源码</a>
         </div>
       </article>
@@ -164,10 +164,16 @@ useSeoMeta({
   overflow: hidden;
   box-shadow: 0 12px 24px rgba(#000, 0.1);
   transition:
-    transform 0.3s,
-    box-shadow 0.3s;
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s ease;
+  // 启用 3D 变换上下文
+  transform-style: preserve-3d;
+  will-change: transform;
+
   &:hover {
-    transform: translateY(-4px);
+    // 向上抬升 + 轻微向右上倾斜（固定方向，简单可靠）
+    transform: translateY(-10px) rotateX(4deg) rotateY(4deg);
+    box-shadow: 0 20px 30px rgba(#000, 0.2);
   }
 }
 
@@ -179,10 +185,12 @@ useSeoMeta({
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s;
+    transition: transform 0.4s ease;
+    // 图片也参与 3D 效果
+    transform: translateZ(10px); // 微微“凸出”
   }
   &:hover img {
-    transform: scale(1.05);
+    transform: translateZ(10px) scale(1.08);
   }
 }
 
@@ -225,14 +233,32 @@ useSeoMeta({
 
 .links {
   display: flex;
-  gap: 0.75rem;
+  justify-content: space-between;
+  gap: 1rem;
   padding: 0 1rem 1.25rem;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
+
   a {
+    position: relative;
     color: var(--primary);
     text-decoration: none;
+    padding: 0.25rem 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary);
+      transition: width 0.3s ease;
+    }
+
     &:hover {
-      text-decoration: underline;
+      &::after {
+        width: 100%;
+      }
     }
   }
 }
