@@ -5,7 +5,7 @@ import { slugify } from './slugify'
 import type { PoolClient } from 'pg'
 
 /* 写入标签（事务内自动建标签+去重 + 拼音化） */
-export async function setPostTags(postId: number, rawNames: string[]): Promise<void> {
+export async function setPostTags(postId: string, rawNames: string[]): Promise<void> {
   const pool = getDbPool()
   const client = await pool.connect()
   try {
@@ -134,7 +134,7 @@ export async function getPostList({
 
 export async function setPostTagsInTransaction(
   client: PoolClient,
-  postId: number,
+  postId: string,
   rawNames: string[]
 ): Promise<void> {
   const names = [...new Set(rawNames.map(t => t.toLowerCase().trim()).filter(Boolean))]

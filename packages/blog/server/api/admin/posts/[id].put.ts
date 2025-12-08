@@ -2,8 +2,8 @@
 import { defineEventHandler, readBody, createError } from 'h3'
 import { z } from 'zod'
 import { PostUpdateSchema } from '../../../schemas/post'
-import { getDbPool } from '../../../utils/db' // ← 获取连接池
-import { setPostTagsInTransaction } from '../../../utils/tagService' // ← 需支持传入 client
+import { getDbPool } from '../../../utils/db'
+import { setPostTagsInTransaction } from '../../../utils/tagService'
 
 export default defineEventHandler(async event => {
   const idParam = event.context.params?.id
@@ -11,14 +11,11 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 400, message: '缺少文章 ID' })
   }
 
-  const id = Number(idParam)
-  if (isNaN(id) || id <= 0 || !Number.isInteger(id)) {
-    throw createError({ statusCode: 400, message: '无效的文章 ID' })
-  }
+  // 不再需要转换为数字
+  const id = idParam
 
   const body = await readBody(event)
 
-  // Zod 校验
   let input
   try {
     input = PostUpdateSchema.parse(body)
@@ -43,7 +40,6 @@ export default defineEventHandler(async event => {
       throw createError({ statusCode: 404, message: '文章不存在' })
     }
 
-    // 开启事务
     await client.query('BEGIN')
 
     // 更新文章
@@ -72,10 +68,9 @@ export default defineEventHandler(async event => {
 
     const updated = updateRes.rows[0]
 
-    // 更新标签（需传入 client 以复用事务）
+    // 更新标签
     await setPostTagsInTransaction(client, id, input.tags || [])
 
-    // 提交事务
     await client.query('COMMIT')
 
     return {
@@ -87,7 +82,7 @@ export default defineEventHandler(async event => {
     console.error('更新文章失败:', error)
 
     if (error.statusCode) {
-      throw error // 透传 400/404
+      throw error
     }
     throw createError({ statusCode: 500, message: '更新文章失败' })
   } finally {

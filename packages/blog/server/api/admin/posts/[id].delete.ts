@@ -8,10 +8,8 @@ export default defineEventHandler(async event => {
     throw createError({ statusCode: 400, message: '缺少文章 ID' })
   }
 
-  const id = Number(idParam)
-  if (isNaN(id) || id <= 0 || !Number.isInteger(id)) {
-    throw createError({ statusCode: 400, message: '无效的文章 ID' })
-  }
+  // 不再需要转换为数字
+  const id = idParam
 
   const pool = getDbPool()
   const client = await pool.connect()
@@ -19,17 +17,17 @@ export default defineEventHandler(async event => {
   try {
     await client.query('BEGIN')
 
-    // 先检查文章是否存在（可选，但建议）
+    // 检查文章是否存在
     const checkRes = await client.query('SELECT id FROM posts WHERE id = $1', [id])
     if (checkRes.rows.length === 0) {
       throw createError({ statusCode: 404, message: '文章不存在或已被删除' })
     }
 
-    // 删除标签关联（外键可能阻止直接删 posts）
+    // 删除标签关联
     await client.query('DELETE FROM post_tags WHERE post_id = $1', [id])
 
     // 删除文章
-    const _deleteRes = await client.query('DELETE FROM posts WHERE id = $1', [id])
+    await client.query('DELETE FROM posts WHERE id = $1', [id])
 
     await client.query('COMMIT')
 
