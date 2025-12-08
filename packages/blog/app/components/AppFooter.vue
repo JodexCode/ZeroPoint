@@ -25,7 +25,7 @@
           class="social-link"
           :aria-label="social.name"
         >
-          <img :src="social.icon" @error="$event.target.textContent = '🔗'" />
+          <img :src="social.icon" @error="handleImgError" />
         </a>
       </div>
     </div>
@@ -83,6 +83,13 @@ const footerLinks = [
   { name: '博客', path: '/blog' },
   { name: '项目集', path: '/projects' },
 ]
+
+function handleImgError(e: Event) {
+  const target = e.target as HTMLImageElement | null
+  if (target) {
+    target.textContent = '🔗'
+  }
+}
 </script>
 
 <style scoped lang="scss">
