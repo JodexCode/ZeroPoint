@@ -1,31 +1,6 @@
 // packages/blog/server/utils/cos.ts
 
-import { createRequire } from 'module'
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-const require = createRequire(__dirname)
-
-let COS: any
-
-try {
-  const COSModule = require('cos-nodejs-sdk-v5')
-  COS = COSModule.default || COSModule
-} catch (e: any) {
-  if (e.code === 'MODULE_NOT_FOUND') {
-    throw new Error(
-      '❌ Missing dependency: "cos-nodejs-sdk-v5". ' +
-        'Run `pnpm add cos-nodejs-sdk-v5` and redeploy.'
-    )
-  }
-  throw e
-}
-
-if (typeof COS !== 'function') {
-  throw new Error('Invalid export from cos-nodejs-sdk-v5: expected a constructor')
-}
+import COS from 'cos-nodejs-sdk-v5'
 
 const cosInstance = new COS({
   SecretId: process.env.COS_SECRET_ID,

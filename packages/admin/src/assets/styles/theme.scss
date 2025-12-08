@@ -24,7 +24,7 @@
 }
 
 html.dark {
-  @import 'https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.css';
+  // @import 'https://cdn.jsdelivr.net/npm/highlight.js@11/styles/github-dark.css';
   /* === 登录页专用（保持不变）=== */
   --login-bg: var(--login-bg-dark);
   --card-bg-dark: rgba(30, 30, 46, 0.7); /* 深紫灰，带透明 */
