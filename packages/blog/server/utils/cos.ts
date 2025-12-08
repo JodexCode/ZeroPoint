@@ -8,7 +8,24 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const require = createRequire(__dirname)
 
-const COS = require('cos-nodejs-sdk-v5')
+let COS: any
+
+try {
+  const COSModule = require('cos-nodejs-sdk-v5')
+  COS = COSModule.default || COSModule
+} catch (e: any) {
+  if (e.code === 'MODULE_NOT_FOUND') {
+    throw new Error(
+      '❌ Missing dependency: "cos-nodejs-sdk-v5". ' +
+        'Run `pnpm add cos-nodejs-sdk-v5` and redeploy.'
+    )
+  }
+  throw e
+}
+
+if (typeof COS !== 'function') {
+  throw new Error('Invalid export from cos-nodejs-sdk-v5: expected a constructor')
+}
 
 const cosInstance = new COS({
   SecretId: process.env.COS_SECRET_ID,
@@ -39,13 +56,12 @@ export function getUploadSignUrl(options: GetUploadSignUrlOptions) {
   const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
   const key = `${cleanPrefix}/${uniqueSuffix}.${ext}`
 
-  /*  关键：把前端会上传的 Content-Type 算进签名  */
   const auth = cosInstance.getAuth({
     Method: 'PUT',
     Key: key,
     Expires: 600,
-    Headers: { 'Content-Type': mimeType }, // ← 补上
-    Query: {}, // 显式置空，避免其它干扰
+    Headers: { 'Content-Type': mimeType },
+    Query: {},
   })
 
   const uploadUrl = `https://${bucket}.cos.${region}.myqcloud.com/${key}?${auth}`

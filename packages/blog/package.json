@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@types/markdown-it": "^14.1.2",
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "cos-nodejs-sdk-v5": "^2.15.4",
     "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",

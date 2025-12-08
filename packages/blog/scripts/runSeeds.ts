@@ -1,7 +1,7 @@
 // packages/blog/scripts/runSeeds.ts
 import dotenv from 'dotenv'
 import { join } from 'path'
-import bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 import { getDbPool } from '../server/utils/db'
 
 // 加载 .env 文件（位于 packages/blog/.env）

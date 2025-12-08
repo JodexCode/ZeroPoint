@@ -7,9 +7,9 @@ import 'element-plus/theme-chalk/el-message.css'
 import { useAuthStore } from '@/stores/auth'
 
 const http: AxiosInstance = axios.create({
-  baseURL: import.meta.env.DEV ? 'http://localhost:3000' : '/',
+  baseURL: import.meta.env.DEV ? 'http://localhost:3000' : import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
-  withCredentials: true, // 自动携带 session_token Cookie
+  withCredentials: true,
 })
 
 // 请求拦截器（可选）

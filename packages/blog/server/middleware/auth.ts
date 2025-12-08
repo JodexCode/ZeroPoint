@@ -1,3 +1,4 @@
+// packages\blog\server\middleware\auth.ts
 import { defineEventHandler, getCookie, createError, getRequestURL } from 'h3'
 import { sessionStore } from '../utils/sessionStore'
 import type { AdminSessionData } from '../types/session'

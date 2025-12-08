@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody, setCookie, createError } from 'h3'
 import { z, ZodError } from 'zod'
 import { query } from '../utils/db' // ← 使用原生 query
-import bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 import { nanoid } from 'nanoid'
 import type { AdminSessionData } from '../types/session'
 import { sessionStore } from '../utils/sessionStore'
