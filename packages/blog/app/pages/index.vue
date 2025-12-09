@@ -537,13 +537,43 @@ useSeoMeta({
     :deep(p) {
       margin-bottom: 1rem;
     }
-    :deep(ul),
-    :deep(ol) {
-      padding-left: 1.25rem;
-      margin-bottom: 1rem;
+    :deep(ul) {
+      list-style: none !important;
+      padding-left: 1.5rem;
+      margin: 0.5rem 0 1rem;
     }
-    :deep(li) {
-      margin-bottom: 0.25rem;
+    :deep(ul li) {
+      position: relative;
+      padding-left: 1rem;
+    }
+    :deep(ul li::before) {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.6em;
+      width: 0.375rem;
+      height: 0.375rem;
+      background: currentColor;
+      border-radius: 50%;
+    }
+    :deep(ol) {
+      list-style: none !important;
+      counter-reset: ol-counter;
+      padding-left: 1.5rem;
+      margin: 0.5rem 0 1rem;
+    }
+    :deep(ol li) {
+      position: relative;
+      padding-left: 1.5rem;
+      counter-increment: ol-counter;
+    }
+    :deep(ol li::before) {
+      content: counter(ol-counter) '.';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: currentColor;
+      font-weight: 500;
     }
     :deep(a) {
       color: var(--primary);
@@ -565,6 +595,15 @@ useSeoMeta({
       background: var(--hljs-bg, #282a36); // Dracula 默认背景
       color: var(--hljs-text, #f8f8f2);
       overflow-x: auto;
+    }
+    :deep(blockquote) {
+      margin: 1rem 0;
+      padding: 0.75rem 1rem 0.75rem 0.75rem;
+      border-left: 4px solid var(--primary); // 左侧高亮色条
+      background: rgba(var(--primary), 0.06); // 淡底纹
+      border-radius: 0 6px 6px 0; // 只圆右侧
+      color: var(--text);
+      font-style: italic;
     }
   }
 }
