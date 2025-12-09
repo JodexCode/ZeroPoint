@@ -1,7 +1,7 @@
 <template>
   <label class="theme-switch" for="theme">
     <!-- 第一次渲染就用 restored 的值，保证滑块和主题同步 -->
-    <input id="theme" type="checkbox" :checked="restored" @change="toggle" />
+    <input id="theme" type="checkbox" :checked="restored" @change="toggle" class="theme-input" />
     <span class="slider">
       <span class="icon">{{ restored ? '🌙' : '☀️' }}</span>
     </span>
@@ -50,11 +50,16 @@ if (process.client) {
   height: 24px; /* 原来是 32 */
   cursor: pointer;
   user-select: none;
+  pointer-events: none;
 }
-.theme-switch input {
+.theme-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
-  width: 0;
-  height: 0;
+  pointer-events: all; /* 只有这个透明的 input 能收到点击 */
+  z-index: 2;
 }
 .slider {
   position: absolute;
