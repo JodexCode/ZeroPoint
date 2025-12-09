@@ -25,7 +25,7 @@
           <img :src="p.cover_image || '/placeholder.jpg'" :alt="p.name" />
         </a>
         <div class="meta">
-          <time>{{ dayjs(p.created_at).format('YYYY-MM-DD') }}</time>
+          <time>{{ $dayjs(p.created_at).format('YYYY-MM-DD') }}</time>
         </div>
         <h2 class="name">
           <a :href="p.demo_url || p.repo_url" target="_blank">
@@ -55,6 +55,8 @@ import dayjs from 'dayjs'
 const route = useRoute()
 const page = ref(Number(route.query.page) || 1)
 const limit = 12
+
+const $dayjs = dayjs
 
 const {
   data: res,
