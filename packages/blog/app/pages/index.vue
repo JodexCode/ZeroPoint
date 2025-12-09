@@ -124,20 +124,22 @@ const {
   $fetch<{ meta: Record<string, string>; socials: any[]; tags: any[] }>('/api/site/config')
 )
 
+const [{ data: projectCount }, { data: articleCount }] = await Promise.all([
+  useFetch('/api/projects/count'),
+  useFetch('/api/blog/count'),
+])
+
 /* 计算属性 */
 const avatar = computed(() => site.value?.meta?.avatar || '/head.jpg')
 const socials = computed(() => site.value?.socials || [])
 const tags = computed(() => site.value?.tags || [])
 
 /* 统计列表 */
-const statList = ref<{ num: string; label: string }[]>([])
-watchEffect(() => {
-  statList.value = [
-    { num: String(socials.value.length), label: '社交账号' },
-    { num: '0+', label: '项目经验' },
-    { num: '0+', label: '技术文章' },
-  ]
-})
+const statList = computed(() => [
+  { num: String(site.value?.socials?.length ?? 0), label: '社交账号' },
+  { num: `${projectCount.value ?? 0}+`, label: '项目经验' },
+  { num: `${articleCount.value ?? 0}+`, label: '技术文章' },
+])
 const aboutHtml = computed(() => renderMarkdown(site.value?.meta?.about_me || ''))
 
 const route = useRoute()

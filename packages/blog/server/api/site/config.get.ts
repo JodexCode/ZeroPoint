@@ -1,3 +1,4 @@
+// packages\blog\server\api\site\config.get.ts
 import { getProfile, listSocials, listProfileTags } from '../../utils/profileService'
 
 export default defineEventHandler(async () => {
