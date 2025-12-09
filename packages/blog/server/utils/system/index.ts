@@ -43,7 +43,4 @@ export async function collectAllMetrics() {
 }
 
 // 重新导出原有 API（保持兼容）
-export { getInstantCpuUsage } from './cpu'
-export { getDisks } from './disk'
-export { getNetworkSpeed, getNetworkInterfaces } from './network'
-export { checkDatabaseHealth } from './database'
+export { getDisks, getInstantCpuUsage, getNetworkSpeed, getNetworkInterfaces, checkDatabaseHealth }
