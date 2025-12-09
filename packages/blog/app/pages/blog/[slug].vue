@@ -102,8 +102,6 @@ const { data: res } = await useAsyncData<{ success: boolean; data: Record<string
   () => $fetch(`/api/blog/${useRoute().params.slug}`)
 )
 const post = computed(() => {
-  console.log(res.value?.data)
-
   return res.value?.data ?? {}
 })
 const html = computed(() => renderMarkdown(post.value.content || ''))

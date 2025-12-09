@@ -1,4 +1,4 @@
--- packages\blog\server\database\migrations\001-init-schema.sql
+-- packages/blog/server/database/migrations/001-init-schema.sql
 
 -- admins
 CREATE TABLE IF NOT EXISTS admins (
@@ -76,7 +76,6 @@ CREATE TABLE IF NOT EXISTS projects (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
 CREATE INDEX IF NOT EXISTS idx_projects_priority ON projects(priority);
 
@@ -112,12 +111,26 @@ CREATE TABLE IF NOT EXISTS profile_tags (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- post_views (保留，但你业务未用)
+-- post_views（阅读去重版）
 CREATE TABLE IF NOT EXISTS post_views (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-  ip_address INET NOT NULL,
+  ip_address INET,          -- 允许 NULL，避免 "unknown" 报错
   viewed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- 联合唯一：同一 IP+文章只能一条记录（NULL 不参与唯一判断）
+ALTER TABLE post_views
+DROP CONSTRAINT IF EXISTS post_views_post_ip_unique;
+
+ALTER TABLE post_views
+ADD CONSTRAINT post_views_post_ip_unique
+UNIQUE (ip_address, post_id);
+
+-- 时间索引，加速滑动窗口查询（半小时去重）
+CREATE INDEX IF NOT EXISTS idx_post_views_viewed_at_desc
+ON post_views (viewed_at DESC);
+
+-- 兼容旧名 & 覆盖原普通索引
 CREATE INDEX IF NOT EXISTS idx_post_views_post_ip ON post_views(post_id, ip_address);
 CREATE INDEX IF NOT EXISTS idx_post_views_viewed_at ON post_views(viewed_at);
