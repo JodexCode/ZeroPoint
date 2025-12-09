@@ -226,11 +226,13 @@ useSeoMeta({
 
 .desc {
   margin: 0.5rem 1rem 1rem;
-  color: rgba(var(--text), 0.8);
+  color: color-mix(in srgb, var(--text) 80%, transparent);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  /* autoprefixer: ignore next */
+  line-clamp: 3;
 }
 
 .links {
