@@ -54,7 +54,7 @@ const props = withDefaults(
 const emit = defineEmits<{ 'update:modelValue': [v: boolean] }>()
 const model = useVModel(props, 'modelValue')
 
-/* ---------- 3. 智能位置 ---------- */
+/* ---------- 智能位置（边缘保护版） ---------- */
 const cardStyle = computed<StyleValue>(() => {
   if (props.x === 0 && props.y === 0) return {} // 默认右下角
 
@@ -67,8 +67,15 @@ const cardStyle = computed<StyleValue>(() => {
   let left = props.x + gap
   let top = props.y + gap
 
-  if (left + cardW > vw) left = props.x - cardW - gap
-  if (top + cardH > vh) top = props.y - cardH - gap
+  // 1. 水平溢出处理
+  if (left + cardW > vw) left = props.x - cardW - gap // 左侧
+  if (left < 0) left = gap // 仍超出左边缘 → 贴左留缝
+  if (left + cardW > vw) left = vw - cardW - gap // 仍超出右边缘 → 贴右留缝
+
+  // 2. 垂直溢出处理
+  if (top + cardH > vh) top = props.y - cardH - gap // 上方
+  if (top < 0) top = gap // 仍超出上边缘 → 贴上留缝
+  if (top + cardH > vh) top = vh - cardH - gap // 仍超出下边缘 → 贴下留缝
 
   return {
     position: 'fixed',
