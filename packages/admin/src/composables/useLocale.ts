@@ -22,7 +22,7 @@ export const useLocale = () => {
     localeRef,
     lang => {
       localStorage.setItem('ADMIN_LOCALE', lang)
-      document.documentElement.setAttribute('lang', lang.replace('-', '_')) // 'zh-CN' → 'zh_CN' for HTML
+      document.documentElement.setAttribute('lang', lang.replace('-', '_'))
     },
     { immediate: true }
   )

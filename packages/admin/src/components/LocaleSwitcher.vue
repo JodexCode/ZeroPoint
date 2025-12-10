@@ -43,8 +43,6 @@ const currentLabel = computed(() => {
 })
 
 const handleSelect = (value: string) => {
-  console.log(' 切换语言前:', localeStore.current)
   localeStore.setLocale(value as any)
-  console.log(' 切换语言后:', localeStore.current)
 }
 </script>

@@ -20,11 +20,11 @@ export const sessionStore = {
 
     try {
       const parsed = JSON.parse(data)
-      const validated = AdminSessionDataSchema.parse(parsed) // 👈 关键：运行时验证
+      const validated = AdminSessionDataSchema.parse(parsed)
       return validated
     } catch (error) {
       console.warn('Invalid session data format, deleting:', key, error)
-      await client.del(key) // 可选：自动清理损坏的 session
+      await client.del(key)
       return null
     }
   },

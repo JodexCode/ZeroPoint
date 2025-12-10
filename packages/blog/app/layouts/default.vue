@@ -1,3 +1,4 @@
+<!-- packages/blog/app/layouts/default.vue -->
 <template>
   <div class="app">
     <NavBar />
@@ -5,16 +6,23 @@
       <slot />
     </main>
     <AppFooter />
+
+    <!-- 全局设备信息卡片 -->
+    <DeviceInfoCard v-model="visible" :info="info" :x="pos.x" :y="pos.y" />
   </div>
 </template>
 
+<script setup lang="ts">
+const { visible, info, pos } = useDeviceInfo()
+</script>
+
 <style scoped lang="scss">
 .app {
-  min-height: 100vh; /* 1. 至少一屏高 */
-  display: flex; /* 2. flex 列布局 */
+  min-height: 100vh;
+  display: flex;
   flex-direction: column;
 }
 .content {
-  flex: 1; /* 3. 剩余空间全部给主内容 */
+  flex: 1;
 }
 </style>
