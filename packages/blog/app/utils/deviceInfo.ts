@@ -20,8 +20,8 @@ export class DeviceInfoService {
     return {
       deviceModel: await this.getDeviceModel(),
       systemVersion: await this.getSystemVersion(),
-      networkType: this.getNetworkType(), // 同步
-      networkSpeed: await this.getNetworkSpeed(), // 异步但 <20ms
+      networkType: this.getNetworkType(),
+      networkSpeed: await this.getNetworkSpeed(),
     }
   }
 
@@ -41,9 +41,23 @@ export class DeviceInfoService {
       if (last.length > 60 || !last) return 'Android Device'
       return last.split('Build')[0]?.trim().replace(/\)$/, '') ?? last
     }
+    /* ---------- iOS / iPadOS 型号（ ---------- */
     if (/iPhone|iPad/i.test(ua)) {
+      // ① 优先问浏览器拿具体型号
+      if ('userAgentData' in navigator) {
+        try {
+          const ud = (navigator as any).userAgentData
+          const hv = await ud.getHighEntropyValues(['model'])
+          if (hv.model) return hv.model.replace(/,/g, ' ')
+        } catch {
+          /* 高熵值失败 */
+        }
+      }
+      // ② UA 里抓具体型号
       const m = ua.match(/\((iPhone[^;)]+|iPad[^;)]+)\)/)
-      return m?.[1] ?? 'iOS Device'
+      if (m?.[1]) return m[1].replace(/;/g, '')
+      // ③ 兜底
+      return /iPad/i.test(ua) ? 'iPad' : 'iPhone'
     }
     if (/Windows/i.test(ua)) return 'Windows PC'
     if (/Mac/i.test(ua)) {
@@ -57,31 +71,39 @@ export class DeviceInfoService {
   private async getSystemVersion(): Promise<string> {
     const ua = navigator.userAgent
 
-    /* ① UA-CH（Chrome/Edge） */
-    if ('userAgentData' in navigator) {
-      const ud = (navigator as any).userAgentData
-      if (ud && ud.platform === 'Windows') {
-        // 先尝试拿高熵值
-        try {
-          const hv = await ud.getHighEntropyValues(['platformVersion'])
-          const major = Number(hv.platformVersion?.split('.')?.[0] ?? 0)
-          if (major >= 11) return 'Windows 11'
-          if (major >= 10) return 'Windows 10'
-        } catch (e) {
-          console.log('[DBG] UA-CH 高熵失败', e)
-        }
-      }
-    } else {
-      console.log('[DBG] 无 UA-CH，走 UA 兜底')
+    /* ===== iOS / iPadOS ===== */
+    if (/iPhone|iPad/i.test(ua)) {
+      const v = ua.match(/OS (\d+[_.]\d+)/)
+      return v?.[1] ? `iOS ${v[1].replace(/_/g, '.')}` : 'iOS'
     }
 
-    /* ② UA 兜底（Firefox & Chrome 无高熵） */
+    /* ===== macOS ===== */
+    if (/Mac/i.test(ua) && !/iPhone|iPad/i.test(ua)) {
+      const m = ua.match(/Mac OS X (\d+[_.]\d+[_.]\d+)/)
+      if (m?.[1]) {
+        const v = m[1].replace(/_/g, '.')
+        const map: Record<string, string> = {
+          '10.15': 'Catalina',
+          '10.14': 'Mojave',
+          '10.13': 'High Sierra',
+          '10.12': 'Sierra',
+          '11.': 'Big Sur',
+          '12.': 'Monterey',
+          '13.': 'Ventura',
+          '14.': 'Sonoma',
+        }
+        for (const [k, name] of Object.entries(map))
+          if (v.startsWith(k)) return `macOS ${name} (${v})`
+        return `macOS ${v}`
+      }
+      return 'macOS'
+    }
+
+    /* ===== Windows ===== */
     if (/Windows/i.test(ua)) {
       if (/Windows NT 10\.0/i.test(ua)) {
-        // 捕捉任意 ≥22000 的 5 位数字
         const buildMatch = ua.match(/Windows NT 10\.0.+?(\d{5,})/)
         const build = Number(buildMatch?.[1] || 0)
-        console.log('[DBG] UA 兜底 build:', build)
         return build >= 22000 ? 'Windows 11' : 'Windows 10'
       }
       if (/Windows NT 6\.3/i.test(ua)) return 'Windows 8.1'
@@ -89,17 +111,20 @@ export class DeviceInfoService {
       return 'Windows'
     }
 
-    /* 其余平台略... */
+    /* ===== Android ===== */
+    if (/Android/i.test(ua)) {
+      const m = ua.match(/Android (\d+\.\d+)/)
+      return m?.[1] ? `Android ${m[1]}` : 'Android'
+    }
+
     return 'Unknown System'
   }
 
-  /* ---------- 网络类型（UA 级，Firefox 可用） ---------- */
+  /* ---------- 网络类型 ---------- */
   private getNetworkType(): string {
     const ua = navigator.userAgent
-    // 1. 优先 UA 关键词
     if (ua.includes('Mobile')) return '移动网络'
     if (ua.includes('Android') || ua.includes('iPhone') || ua.includes('iPad')) return '移动网络'
-    // 2. 如支持 connection API 再细分
     const conn = (navigator as any).connection
     if (conn) {
       const type = conn.networkType || conn.type || ''
@@ -107,26 +132,24 @@ export class DeviceInfoService {
       if (type === 'ethernet') return '有线网络'
       if (type === 'cellular') return '4G 移动网络'
     }
-    // 3. 兜底
     return 'WiFi'
   }
 
-  /* ---------- 网速（强制下载测速，不用 downlink） ---------- */
+  /* ---------- 网速（真实 Mbps） ---------- */
   private async getNetworkSpeed(): Promise<string> {
-    // 统一 200KB 国内文件，带随机数防缓存
+    const conn = (navigator as any).connection
+    if (conn?.rtt) return `${conn.rtt} ms`
+
     const fileUrl =
       'https://cdn.bootcdn.net/ajax/libs/lodash.js/4.17.21/lodash.min.js?' + Date.now()
-    const fileSize = 200 * 1024 * 8 // bit
+    const fileSize = 200 * 1024 * 8
     const start = performance.now()
-
     try {
       await fetch(fileUrl, { mode: 'no-cors', cache: 'no-store' })
-      const duration = (performance.now() - start) / 1000 // 秒
+      const duration = (performance.now() - start) / 1000
       const mbps = (fileSize / duration / 1024 / 1024).toFixed(1)
       return `${mbps} Mbps`
     } catch {
-      // 极端失败：退用 RTT
-      const conn = (navigator as any).connection
       return conn?.rtt ? `${conn.rtt} ms` : ''
     }
   }
