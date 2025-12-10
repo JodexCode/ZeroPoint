@@ -8,12 +8,27 @@
     <AppFooter />
 
     <!-- 全局设备信息卡片 -->
-    <DeviceInfoCard v-model="visible" :info="info" :x="pos.x" :y="pos.y" />
+    <ClientOnly>
+      <DeviceInfoCard v-model="visible" :info="info" :x="pos.x" :y="pos.y" />
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
-const { visible, info, pos } = useDeviceInfo()
+// 💡 只在客户端调用 useDeviceInfo
+
+const { visible, info, pos } = process.client
+  ? useDeviceInfo()
+  : {
+      visible: ref(false),
+      info: reactive({
+        deviceModel: '',
+        systemVersion: '',
+        networkType: '',
+        networkSpeed: '',
+      }),
+      pos: ref({ x: 0, y: 0 }),
+    }
 </script>
 
 <style scoped lang="scss">

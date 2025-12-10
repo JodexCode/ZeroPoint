@@ -31,79 +31,113 @@
 <script setup lang="ts">
 import type { DeviceInfo } from '~/utils/deviceInfo'
 import { useVModel } from '@vueuse/core'
-import type { CSSProperties, StyleValue } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 
-/* ---------- 1. 生命周期放 setup 根 ---------- */
-let timer: number | null = null
-onMounted(() => {
-  const onClickOutside = (e: Event) => {
-    if ((e.target as HTMLElement).closest('.device-info-card') === null) model.value = false
-  }
-  document.addEventListener('click', onClickOutside, true)
-  onUnmounted(() => {
-    document.removeEventListener('click', onClickOutside, true)
-    if (timer) clearInterval(timer)
-  })
-})
-
-/* ---------- 2.  props / model  ---------- */
 const props = withDefaults(
   defineProps<{ modelValue: boolean; info: DeviceInfo; x?: number; y?: number }>(),
   { x: 0, y: 0 }
 )
 const emit = defineEmits<{ 'update:modelValue': [v: boolean] }>()
 const model = useVModel(props, 'modelValue')
+const bar = ref(100)
 
-/* ---------- 智能位置（边缘保护版） ---------- */
-const cardStyle = computed<StyleValue>(() => {
-  if (props.x === 0 && props.y === 0) return {} // 默认右下角
-
+const cardStyle = computed(() => {
+  if (props.x === 0 && props.y === 0) return {}
+  if (typeof window === 'undefined') return {} // SSR 安全
   const gap = 8
   const cardW = 280
   const cardH = 220
   const vw = window.innerWidth
   const vh = window.innerHeight
-
   let left = props.x + gap
   let top = props.y + gap
-
-  // 1. 水平溢出处理
-  if (left + cardW > vw) left = props.x - cardW - gap // 左侧
-  if (left < 0) left = gap // 仍超出左边缘 → 贴左留缝
-  if (left + cardW > vw) left = vw - cardW - gap // 仍超出右边缘 → 贴右留缝
-
-  // 2. 垂直溢出处理
-  if (top + cardH > vh) top = props.y - cardH - gap // 上方
-  if (top < 0) top = gap // 仍超出上边缘 → 贴上留缝
-  if (top + cardH > vh) top = vh - cardH - gap // 仍超出下边缘 → 贴下留缝
+  if (left + cardW > vw) left = props.x - cardW - gap
+  if (left < 0) left = gap
+  if (left + cardW > vw) left = vw - cardW - gap
+  if (top + cardH > vh) top = props.y - cardH - gap
+  if (top < 0) top = gap
+  if (top + cardH > vh) top = vh - cardH - gap
 
   return {
     position: 'fixed',
     left: `${left}px`,
     top: `${top}px`,
     transform: 'none',
-  } as CSSProperties
+  }
 })
 
-/* ---------- 4. 自动关闭进度条 ---------- */
-const bar = ref(100)
-watch(model, v => {
-  if (!v) return
-  bar.value = 100
-  if (timer) clearInterval(timer)
-  timer = window.setInterval(() => {
-    bar.value -= 2
-    if (bar.value <= 0) model.value = false
-  }, 100)
-})
-
-/* ---------- 5. 数据 ---------- */
 const list = computed(() => [
   { icon: 'phone', label: '设备型号', value: props.info.deviceModel },
   { icon: 'cog', label: '系统版本', value: props.info.systemVersion },
   { icon: 'wifi', label: '网络类型', value: props.info.networkType },
   { icon: 'gauge', label: '网速', value: props.info.networkSpeed },
 ])
+
+// ===== 客户端副作用（仅在客户端运行）=====
+let timer: ReturnType<typeof setInterval> | null = null
+let isClickOutsideListenerAdded = false
+
+const startTimer = () => {
+  bar.value = 100
+
+  timer = setInterval(() => {
+    bar.value -= 2
+    if (bar.value <= 0) {
+      model.value = false
+    }
+  }, 100)
+}
+
+const stopTimer = () => {
+  if (timer !== null) {
+    clearInterval(timer)
+    timer = null
+  }
+}
+
+const onClickOutside = (e: Event) => {
+  if ((e.target as HTMLElement).closest('.device-info-card') === null) {
+    model.value = false
+  }
+}
+
+const addClickOutsideListener = () => {
+  if (!isClickOutsideListenerAdded && typeof document !== 'undefined') {
+    document.addEventListener('click', onClickOutside, { capture: true })
+    isClickOutsideListenerAdded = true
+  }
+}
+
+const removeClickOutsideListener = () => {
+  if (isClickOutsideListenerAdded && typeof document !== 'undefined') {
+    document.removeEventListener('click', onClickOutside, { capture: true })
+    isClickOutsideListenerAdded = false
+  }
+}
+
+watch(
+  model,
+  show => {
+    // 只在客户端处理
+    if (process.client) {
+      if (show) {
+        startTimer()
+        addClickOutsideListener()
+      } else {
+        stopTimer()
+        removeClickOutsideListener()
+      }
+    }
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => {
+  if (process.client) {
+    stopTimer()
+    removeClickOutsideListener()
+  }
+})
 </script>
 
 <style scoped>
