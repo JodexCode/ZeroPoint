@@ -1,4 +1,4 @@
-// ~/composables/useDeviceInfo.ts
+// packages\blog\app\composables\useDeviceInfoCard.ts
 import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue'
 import type { DeviceInfo } from '~/utils/deviceInfo'
 import { DeviceInfoService } from '~/utils/deviceInfo'
@@ -46,10 +46,12 @@ export function useDeviceInfo() {
 
     pos.value = { x: touch.clientX, y: touch.clientY }
 
+    // ① 立刻弹出卡片（秒出骨架）
     visible.value = false
     await nextTick()
     visible.value = true
 
+    // ② 后台并发填充真实数据
     Object.assign(info, await DeviceInfoService.getInstance().getDeviceInfo())
   }
 

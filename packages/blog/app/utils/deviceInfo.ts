@@ -1,4 +1,3 @@
-// packages/blog/app/utils/deviceInfo.ts
 export interface DeviceInfo {
   deviceModel: string
   systemVersion: string
@@ -17,17 +16,34 @@ export class DeviceInfoService {
     if (typeof window === 'undefined')
       return { deviceModel: '', systemVersion: '', networkType: '', networkSpeed: '' }
 
+    // ① 立刻能拿到的字段（零等待）
+    const ua = navigator.userAgent
+    const conn = (navigator as any).connection
+    const instant: Partial<DeviceInfo> = {
+      deviceModel: this.parseUADevice(ua),
+      systemVersion: this.parseUAVersion(ua),
+      networkType: this.getNetworkType(), // ← 这里补上调用
+      networkSpeed: conn?.rtt ? `${conn.rtt} ms` : '',
+    }
+
+    // ② 后台并发跑异步任务（真机补充）
+    const [model, version, speed] = await Promise.all([
+      this.getRealModel(),
+      this.getRealVersion(),
+      this.getRealSpeed(),
+    ])
+
+    // ③ 合并结果（逐项更新）
     return {
-      deviceModel: await this.getDeviceModel(),
-      systemVersion: await this.getSystemVersion(),
-      networkType: this.getNetworkType(),
-      networkSpeed: await this.getNetworkSpeed(),
+      deviceModel: model || instant.deviceModel!,
+      systemVersion: version || instant.systemVersion!,
+      networkType: instant.networkType!,
+      networkSpeed: speed || instant.networkSpeed!,
     }
   }
 
-  /* ---------- 型号 ---------- */
-  private async getDeviceModel(): Promise<string> {
-    const ua = navigator.userAgent
+  /* ---------- 立刻 UA 解析 ---------- */
+  private parseUADevice(ua: string): string {
     if (/Android/i.test(ua)) {
       const bracket = ua.match(/\(([^)]+)\)/)
       const raw = bracket?.[1] ?? ''
@@ -41,22 +57,18 @@ export class DeviceInfoService {
       if (last.length > 60 || !last) return 'Android Device'
       return last.split('Build')[0]?.trim().replace(/\)$/, '') ?? last
     }
-    /* ---------- iOS / iPadOS 型号（ ---------- */
     if (/iPhone|iPad/i.test(ua)) {
-      // ① 优先问浏览器拿具体型号
       if ('userAgentData' in navigator) {
         try {
           const ud = (navigator as any).userAgentData
-          const hv = await ud.getHighEntropyValues(['model'])
+          const hv = ud.getHighEntropyValues(['model'])
           if (hv.model) return hv.model.replace(/,/g, ' ')
         } catch {
           /* 高熵值失败 */
         }
       }
-      // ② UA 里抓具体型号
       const m = ua.match(/\((iPhone[^;)]+|iPad[^;)]+)\)/)
       if (m?.[1]) return m[1].replace(/;/g, '')
-      // ③ 兜底
       return /iPad/i.test(ua) ? 'iPad' : 'iPhone'
     }
     if (/Windows/i.test(ua)) return 'Windows PC'
@@ -67,17 +79,11 @@ export class DeviceInfoService {
     return 'Unknown Device'
   }
 
-  /* ---------- 系统版本 ---------- */
-  private async getSystemVersion(): Promise<string> {
-    const ua = navigator.userAgent
-
-    /* ===== iOS / iPadOS ===== */
+  private parseUAVersion(ua: string): string {
     if (/iPhone|iPad/i.test(ua)) {
       const v = ua.match(/OS (\d+[_.]\d+)/)
       return v?.[1] ? `iOS ${v[1].replace(/_/g, '.')}` : 'iOS'
     }
-
-    /* ===== macOS ===== */
     if (/Mac/i.test(ua) && !/iPhone|iPad/i.test(ua)) {
       const m = ua.match(/Mac OS X (\d+[_.]\d+[_.]\d+)/)
       if (m?.[1]) {
@@ -98,8 +104,6 @@ export class DeviceInfoService {
       }
       return 'macOS'
     }
-
-    /* ===== Windows ===== */
     if (/Windows/i.test(ua)) {
       if (/Windows NT 10\.0/i.test(ua)) {
         const buildMatch = ua.match(/Windows NT 10\.0.+?(\d{5,})/)
@@ -110,21 +114,15 @@ export class DeviceInfoService {
       if (/Windows NT 6\.1/i.test(ua)) return 'Windows 7'
       return 'Windows'
     }
-
-    /* ===== Android ===== */
     if (/Android/i.test(ua)) {
       const m = ua.match(/Android (\d+\.\d+)/)
       return m?.[1] ? `Android ${m[1]}` : 'Android'
     }
-
     return 'Unknown System'
   }
 
-  /* ---------- 网络类型 ---------- */
+  /* ---------- 网络类型（立刻 connection API） ---------- */
   private getNetworkType(): string {
-    const ua = navigator.userAgent
-    if (ua.includes('Mobile')) return '移动网络'
-    if (ua.includes('Android') || ua.includes('iPhone') || ua.includes('iPad')) return '移动网络'
     const conn = (navigator as any).connection
     if (conn) {
       const type = conn.networkType || conn.type || ''
@@ -135,11 +133,13 @@ export class DeviceInfoService {
     return 'WiFi'
   }
 
-  /* ---------- 网速（真实 Mbps） ---------- */
-  private async getNetworkSpeed(): Promise<string> {
+  /* ---------- 网速（后台并发） ---------- */
+  private async getRealSpeed(): Promise<string> {
+    // ① 先给临时值（可能 150 ms）
     const conn = (navigator as any).connection
-    if (conn?.rtt) return `${conn.rtt} ms`
+    const temp = conn?.rtt ? `${conn.rtt} ms` : ''
 
+    // ② 后台强制下载 → 更新为 Mbps
     const fileUrl =
       'https://cdn.bootcdn.net/ajax/libs/lodash.js/4.17.21/lodash.min.js?' + Date.now()
     const fileSize = 200 * 1024 * 8
@@ -150,7 +150,39 @@ export class DeviceInfoService {
       const mbps = (fileSize / duration / 1024 / 1024).toFixed(1)
       return `${mbps} Mbps`
     } catch {
-      return conn?.rtt ? `${conn.rtt} ms` : ''
+      // 下载失败 → 继续用临时值
+      return temp
     }
+  }
+
+  /* ---------- 后台异步补充（真机/高熵值） ---------- */
+  private async getRealModel(): Promise<string | undefined> {
+    if ('userAgentData' in navigator) {
+      try {
+        const ud = (navigator as any).userAgentData
+        const hv = await ud.getHighEntropyValues(['model'])
+        if (hv.model) return hv.model.replace(/,/g, ' ')
+      } catch {
+        /* 高熵值失败 */
+      }
+    }
+    // 无高熵值 → 返回 undefined，保留 UA 解析结果
+    return undefined
+  }
+
+  private async getRealVersion(): Promise<string | undefined> {
+    if ('userAgentData' in navigator) {
+      try {
+        const ud = (navigator as any).userAgentData
+        if (ud.platform === 'Windows') {
+          const major = Number(ud.platformVersion?.split('.')?.[0] ?? 0)
+          if (major >= 11) return 'Windows 11'
+          if (major >= 10) return 'Windows 10'
+        }
+      } catch {
+        /* 高熵值失败 */
+      }
+    }
+    return undefined
   }
 }
