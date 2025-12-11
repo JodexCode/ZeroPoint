@@ -86,7 +86,7 @@ export function useDeviceInfo() {
 
   onMounted(() => {
     document.addEventListener('contextmenu', onContext)
-    document.addEventListener('touchstart', onTouchStart, { passive: false })
+    document.addEventListener('touchstart', onTouchStart, { passive: true })
     document.addEventListener('touchmove', onTouchMove, { passive: true })
     document.addEventListener('touchend', onTouchEnd)
   })

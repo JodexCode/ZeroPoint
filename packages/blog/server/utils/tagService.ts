@@ -3,6 +3,7 @@ import { getDbPool, query } from './db'
 import { getPostSelectFields } from './postDto'
 import { slugify } from './slugify'
 import type { PoolClient } from 'pg'
+import PinyinMatch from 'pinyin-match'
 
 /* 写入标签（事务内自动建标签+去重 + 拼音化） */
 export async function setPostTags(postId: string, rawNames: string[]): Promise<void> {
@@ -44,85 +45,108 @@ export async function getAllTags(count = 100) {
   }))
 }
 
-/* 统一列表查询 */
+/* 统一列表查询 - 支持搜索、分页、标签筛选 */
 export async function getPostList({
   page = 1,
   limit = 10,
   status,
   tagSlug,
+  search,
 }: {
   page: number
   limit: number
   status?: 'draft' | 'published'
   tagSlug?: string
+  search?: string
 }) {
   const offset = (page - 1) * limit
   const selectFields = getPostSelectFields()
 
-  let baseQuery = ''
-  let countQuery = ''
+  const where: string[] = []
   const params: any[] = []
-  let paramIndex = 1
 
-  if (tagSlug === '_untagged') {
-    baseQuery = `
-      FROM posts
-      LEFT JOIN post_tags ON posts.id = post_tags.post_id
-      WHERE post_tags.tag_id IS NULL
-    `
-    countQuery = baseQuery
-    if (status) {
-      baseQuery += ` AND posts.status = $${paramIndex}`
-      countQuery += ` AND posts.status = $${paramIndex}`
-      params.push(status)
-      paramIndex++
-    }
-  } else if (tagSlug) {
-    baseQuery = `
-      FROM posts
-      INNER JOIN post_tags ON posts.id = post_tags.post_id
-      INNER JOIN tags ON post_tags.tag_id = tags.id
-      WHERE tags.slug = $${paramIndex}
-    `
-    countQuery = baseQuery
-    params.push(tagSlug)
-    paramIndex++
-    if (status) {
-      baseQuery += ` AND posts.status = $${paramIndex}`
-      countQuery += ` AND posts.status = $${paramIndex}`
-      params.push(status)
-      paramIndex++
-    }
-  } else {
-    baseQuery = 'FROM posts'
-    countQuery = baseQuery
-    if (status) {
-      baseQuery += ` WHERE posts.status = $${paramIndex}`
-      countQuery += ` WHERE posts.status = $${paramIndex}`
-      params.push(status)
-      paramIndex++
-    }
+  /* 1. 搜索：字符级 OR 拉回候选集 */
+  if (search) {
+    const chars = Array.from(search.toLowerCase())
+    const placeholders: string[] = []
+    chars.forEach(ch => {
+      params.push(`%${ch}%`)
+      placeholders.push(
+        `(posts.title ILIKE $${params.length} OR posts.excerpt ILIKE $${params.length})`
+      )
+    })
+    where.push(placeholders.join(' OR '))
   }
 
-  // 获取总数
-  const countRes = await query(`SELECT COUNT(*) AS count ${countQuery}`, params)
-  const total = Number(countRes.rows[0].count)
+  /* 2. 标签筛选 */
+  if (tagSlug === '_untagged') {
+    where.push('post_tags.tag_id IS NULL')
+  } else if (tagSlug) {
+    params.push(tagSlug)
+    where.push(`tags.slug = $${params.length}`)
+  }
 
-  // 获取分页数据
+  /* 3. 状态筛选 */
+  if (status) {
+    params.push(status)
+    where.push(`posts.status = $${params.length}`)
+  }
+
+  /* 4. 拼接 WHERE */
+  const whereSQL = where.length ? 'WHERE ' + where.join(' AND ') : 'WHERE TRUE'
+
+  /* 5. JOIN */
+  let joinSQL = ''
+  if (tagSlug && tagSlug !== '_untagged') {
+    joinSQL = `
+      INNER JOIN post_tags ON posts.id = post_tags.post_id
+      INNER JOIN tags ON post_tags.tag_id = tags.id
+    `
+  } else if (tagSlug === '_untagged') {
+    joinSQL = `LEFT JOIN post_tags ON posts.id = post_tags.post_id`
+  }
+
+  /* 6. 总数 */
+  const countRes = await query(`SELECT COUNT(*) AS count FROM posts ${joinSQL} ${whereSQL}`, params)
+  let total = Number(countRes.rows[0].count)
+
+  /* 7. 取数据 */
+  const limitIdx = params.length + 1
+  const offsetIdx = params.length + 2
   const dataParams = [...params, limit, offset]
   const postsRes = await query(
     `
       SELECT ${selectFields}
-      ${baseQuery}
+      FROM posts ${joinSQL}
+      ${whereSQL}
       ORDER BY posts.created_at DESC
-      LIMIT $${params.length + 1}
-      OFFSET $${params.length + 2}
+      LIMIT $${limitIdx}
+      OFFSET $${offsetIdx}
     `,
     dataParams
   )
 
+  /* 8. 内存层：PinyinMatch 精准混写 */
+  let finalPosts = postsRes.rows
+  if (search) {
+    const kw = search.toLowerCase()
+    finalPosts = postsRes.rows
+      .map(p => ({
+        ...p,
+        score:
+          (p.title.toLowerCase().includes(kw) ? 1 : 0) ||
+          (p.excerpt?.toLowerCase().includes(kw) ? 0.8 : 0) ||
+          (PinyinMatch.match(p.title, kw) ? 1 : 0) ||
+          (PinyinMatch.match(p.excerpt || '', kw) ? 0.8 : 0),
+      }))
+      .filter(p => p.score > 0)
+      .sort((a, b) => b.score - a.score)
+    total = finalPosts.length
+  }
+
+  /* 9. 返回 */
   return {
-    posts: postsRes.rows,
+    posts: finalPosts,
     pagination: {
       page,
       limit,
@@ -131,7 +155,6 @@ export async function getPostList({
     },
   }
 }
-
 export async function setPostTagsInTransaction(
   client: PoolClient,
   postId: string,
