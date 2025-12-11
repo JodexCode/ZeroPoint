@@ -1,21 +1,42 @@
 <template>
   <div class="blog-index">
+    <!-- 头部 -->
     <header class="list-header">
       <h1 class="title">words & notes</h1>
       <p class="subtitle">偶尔写下的文字，记录踩坑、折腾与思考，愿也能为你的片刻带来一点启发。</p>
+
+      <!-- 通用搜索 -->
+      <AppSearchBox
+        v-model="searchKw"
+        placeholder="搜索标题 / 摘要 / 拼音"
+        @search="onSearch"
+        style="margin-top: 20px"
+      />
     </header>
-    <!-- 文章卡片 -->
+
+    <!-- 加载中 -->
     <div v-if="pending" class="loading-box">
       <svg class="spin" viewBox="0 0 50 50">
         <circle cx="25" cy="25" r="20" fill="none" stroke="var(--primary)" />
       </svg>
     </div>
+
+    <!-- 错误 -->
     <div v-else-if="error" class="error-box">
       <p>⚠️ 加载失败</p>
-      <button class="btn" @click="() => refresh()">重新加载</button>
+      <button class="btn" @click="refresh()">重新加载</button>
     </div>
-    <div v-else-if="!list.length" class="empty-box">暂无文章</div>
 
+    <!-- 空结果 -->
+    <div v-else-if="!list.length" class="empty-box">
+      <template v-if="searchKw">
+        未找到与<strong>“{{ searchKw }}”</strong>相关的文章<br />
+        <button class="btn-text" @click="clearSearch">显示全部</button>
+      </template>
+      <template v-else>暂无文章</template>
+    </div>
+
+    <!-- 文章卡片 -->
     <div v-else class="cards">
       <article v-for="p in list" :key="p.id" class="card">
         <NuxtLink :to="`/blog/${p.slug}`" class="cover-box">
@@ -44,45 +65,58 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 
-/* 1. 基础分页（无搜索、无标签） */
 const route = useRoute()
-const page = ref(1)
+
+/* 搜索关键词 */
+const searchKw = ref<string>('')
+
+/* 分页参数 */
+const page = ref<number>(1)
 const limit = 12
 
+/* 统一取数（空值自动加载第一页） */
 const {
   data: res,
   pending,
   error,
   refresh,
 } = await useAsyncData(
-  `blog-list-${page.value}`,
-  () => $fetch('/api/blog/list', { params: { page: page.value, limit } }),
-  { watch: [page] }
+  `blog-list-${route.fullPath}`,
+  () =>
+    $fetch('/api/blog/list', {
+      params: {
+        page: page.value,
+        limit,
+        search: searchKw.value.trim() || undefined,
+      },
+    }),
+  { watch: [route] }
 )
 
 const list = computed(() => (res.value as any)?.data?.list ?? [])
 const totalPages = computed(() => (res.value as any)?.data?.pagination?.totalPages ?? 1)
 
-/* 2. 翻页 */
-function go(newPage: number) {
-  navigateTo({ query: { page: newPage } })
+/* 搜索回调（空值也触发，回到第一页） */
+function onSearch(kw: string) {
+  searchKw.value = kw.trim()
+  navigateTo({ query: { page: 1, ...(searchKw.value && { search: searchKw.value }) } })
 }
 
-/* ===== SEO ===== */
-const {
-  public: { siteUrl },
-} = useRuntimeConfig()
+/* 清空搜索 */
+function clearSearch() {
+  searchKw.value = ''
+  navigateTo({ query: {} })
+}
 
-useHead({
-  title: `我的博客文章 - ZeroPoint | 每天睡25小时的个人博客`,
-  link: [{ rel: 'canonical', href: `${siteUrl}${route.fullPath}` }],
-})
-useSeoMeta({
-  description: '技术笔记、踩坑记录与偶尔的生活碎片。',
-  ogTitle: '我的博客文章 - ZeroPoint',
-  ogDescription: '技术笔记、踩坑记录与偶尔的生活碎片。',
-  ogUrl: `${siteUrl}${route.fullPath}`,
-})
+/* 翻页（保留当前关键词） */
+function go(newPage: number) {
+  navigateTo({
+    query: {
+      page: newPage,
+      ...(searchKw.value && { search: searchKw.value }),
+    },
+  })
+}
 </script>
 
 <style scoped lang="scss">
@@ -183,11 +217,13 @@ useSeoMeta({
 }
 .excerpt {
   margin: 0.5rem 1rem 1rem;
-  color: rgba(var(--text), 0.8);
+  color: color-mix(in srgb, var(--text) 80%, transparent);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  /* autoprefixer: ignore next */
+  line-clamp: 3;
 }
 
 /* 7. 分页 */
@@ -232,5 +268,21 @@ useSeoMeta({
     color: rgba(var(--text), 0.8);
     line-height: 1.6;
   }
+}
+.btn-text {
+  margin-top: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.spin {
+  animation: rotate 1s linear infinite;
+  width: 40px;
+  height: 40px;
 }
 </style>

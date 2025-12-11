@@ -283,129 +283,124 @@ useSeoMeta({
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
   /* Markdown 内容样式 */
-  :deep {
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      color: var(--text);
-      font-weight: 600;
-      position: relative;
-      padding-bottom: 0.5rem;
+  :deep(h1),
+  :deep(h2),
+  :deep(h3),
+  :deep(h4),
+  :deep(h5),
+  :deep(h6) {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+    font-weight: 600;
+    position: relative;
+    padding-bottom: 0.5rem;
 
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 60px;
-        height: 3px;
-        background: var(--primary);
-        border-radius: 2px;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+  }
+
+  /* 单独字号 */
+  :deep(h1) {
+    font-size: 2rem;
+  }
+  :deep(h2) {
+    font-size: 1.75rem;
+  }
+  :deep(h3) {
+    font-size: 1.5rem;
+  }
+  :deep(h4) {
+    font-size: 1.25rem;
+  }
+
+  /* 其余元素同样写法 */
+  :deep(p) {
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+  }
+
+  :deep(ul),
+  :deep(ol) {
+    padding-left: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    li {
+      margin-bottom: 0.5rem;
+      &::marker {
+        color: var(--primary);
       }
     }
+  }
 
-    h1 {
-      font-size: 2rem;
+  :deep(a) {
+    color: var(--primary);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s ease;
+    &:hover {
+      border-bottom-color: var(--primary);
     }
-    h2 {
-      font-size: 1.75rem;
+  }
+
+  :deep(img) {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 2rem 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  :deep(pre) {
+    background: rgba(var(--text), 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    border: 1px solid var(--card-border);
+    code {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
     }
-    h3 {
-      font-size: 1.5rem;
-    }
-    h4 {
-      font-size: 1.25rem;
-    }
+  }
 
-    p {
-      margin-bottom: 1.5rem;
-      font-size: 1.05rem;
-    }
+  :deep(code:not(pre code)) {
+    background: rgba(var(--primary), 0.1);
+    color: var(--primary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
 
-    ul,
-    ol {
-      padding-left: 1.5rem;
-      margin-bottom: 1.5rem;
+  :deep(blockquote) {
+    border-left: 4px solid var(--primary);
+    margin: 1.5rem 0;
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    background: rgba(var(--primary), 0.05);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+  }
 
-      li {
-        margin-bottom: 0.5rem;
-
-        &::marker {
-          color: var(--primary);
-        }
-      }
-    }
-
-    a {
-      color: var(--primary);
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: all 0.3s ease;
-
-      &:hover {
-        border-bottom-color: var(--primary);
-      }
-    }
-
-    img {
-      max-width: 100%;
-      border-radius: 12px;
-      margin: 2rem 0;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    pre {
-      background: rgba(var(--text), 0.05);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin: 1.5rem 0;
-      overflow-x: auto;
+  :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    th,
+    td {
+      padding: 0.75rem;
       border: 1px solid var(--card-border);
-
-      code {
-        background: transparent;
-        padding: 0;
-        border-radius: 0;
-      }
     }
-
-    code:not(pre code) {
+    th {
       background: rgba(var(--primary), 0.1);
-      color: var(--primary);
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      font-size: 0.9em;
-    }
-
-    blockquote {
-      border-left: 4px solid var(--primary);
-      margin: 1.5rem 0;
-      padding: 0.5rem 0 0.5rem 1.5rem;
-      background: rgba(var(--primary), 0.05);
-      border-radius: 0 8px 8px 0;
-      font-style: italic;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1.5rem 0;
-
-      th,
-      td {
-        padding: 0.75rem;
-        border: 1px solid var(--card-border);
-      }
-
-      th {
-        background: rgba(var(--primary), 0.1);
-        font-weight: 600;
-      }
+      font-weight: 600;
     }
   }
 }
@@ -458,16 +453,14 @@ useSeoMeta({
   .post-content {
     padding: 1.5rem;
 
-    :deep {
-      h1 {
-        font-size: 1.75rem;
-      }
-      h2 {
-        font-size: 1.5rem;
-      }
-      h3 {
-        font-size: 1.25rem;
-      }
+    :deep(h1) {
+      font-size: 1.75rem;
+    }
+    :deep(h2) {
+      font-size: 1.5rem;
+    }
+    :deep(h3) {
+      font-size: 1.25rem;
     }
   }
 }
