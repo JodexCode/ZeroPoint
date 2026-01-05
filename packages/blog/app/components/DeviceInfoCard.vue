@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import type { DeviceInfo } from '~/utils/deviceInfo'
 import { useVModel } from '@vueuse/core'
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted, type StyleValue, type CSSProperties } from 'vue'
 
 const props = withDefaults(
   defineProps<{ modelValue: boolean; info: DeviceInfo; x?: number; y?: number }>(),
@@ -41,9 +41,9 @@ const emit = defineEmits<{ 'update:modelValue': [v: boolean] }>()
 const model = useVModel(props, 'modelValue')
 const bar = ref(100)
 
-const cardStyle = computed(() => {
+const cardStyle = computed<StyleValue>(() => {
   if (props.x === 0 && props.y === 0) return {}
-  if (typeof window === 'undefined') return {} // SSR 安全
+  if (typeof window === 'undefined') return {}
   const gap = 8
   const cardW = 280
   const cardH = 220
@@ -59,11 +59,11 @@ const cardStyle = computed(() => {
   if (top + cardH > vh) top = vh - cardH - gap
 
   return {
-    position: 'fixed',
+    position: 'fixed' as const,
     left: `${left}px`,
     top: `${top}px`,
     transform: 'none',
-  }
+  } satisfies CSSProperties
 })
 
 const list = computed(() => [
