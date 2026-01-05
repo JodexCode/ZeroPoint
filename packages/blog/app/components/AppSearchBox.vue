@@ -68,13 +68,13 @@ function handleSubmit() {
 .app-search-box {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   max-width: 480px;
   margin: 0 auto 2rem;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 2rem;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.6rem;
   backdrop-filter: blur(8px);
   transition: box-shadow 0.3s;
   &:focus-within {
@@ -82,7 +82,8 @@ function handleSubmit() {
   }
 
   .input {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 0;
     border: none;
     outline: none;
     background: transparent;
@@ -91,6 +92,7 @@ function handleSubmit() {
   }
 
   .btn {
+    flex: 0 0 28px;
     display: grid;
     place-items: center;
     width: 28px;
@@ -107,6 +109,7 @@ function handleSubmit() {
   }
 }
 .clear-btn {
+  flex: 0 0 20px;
   position: relative;
   width: 20px;
   height: 20px;
@@ -140,6 +143,13 @@ function handleSubmit() {
   }
   &::after {
     transform: translate(-50%, -50%) rotate(-45deg);
+  }
+}
+@media (max-width: 360px) {
+  .app-search-box {
+    font-size: 0.875rem;
+    border-radius: 8px;
+    padding: 0.35rem 0.5rem;
   }
 }
 </style>
