@@ -24,14 +24,14 @@
     <!-- 错误 -->
     <div v-else-if="error" class="error-box">
       <p>⚠️ 加载失败</p>
-      <button class="btn" @click="refresh()">重新加载</button>
+      <button class="btn" @click.prevent="refresh()">重新加载</button>
     </div>
 
     <!-- 空结果 -->
     <div v-else-if="!list.length" class="empty-box">
       <template v-if="searchKw">
         未找到与<strong>“{{ searchKw }}”</strong>相关的文章<br />
-        <button class="btn-text" @click="clearSearch">显示全部</button>
+        <button class="btn-text" @click.prevent="clearSearch">显示全部</button>
       </template>
       <template v-else>暂无文章</template>
     </div>
@@ -55,9 +55,9 @@
 
     <!-- 分页 -->
     <div v-if="totalPages > 1" class="pagination">
-      <button :disabled="page === 1" @click="go(page - 1)">上一页</button>
+      <button :disabled="page === 1" @click.prevent="go(page - 1)">上一页</button>
       <span>{{ page }} / {{ totalPages }}</span>
-      <button :disabled="page === totalPages" @click="go(page + 1)">下一页</button>
+      <button :disabled="page === totalPages" @click.prevent="go(page + 1)">下一页</button>
     </div>
   </div>
 </template>
@@ -81,7 +81,7 @@ const {
   error,
   refresh,
 } = await useAsyncData(
-  `blog-list-${route.fullPath}`,
+  `blog-list-${page.value}-${searchKw.value}`,
   () =>
     $fetch('/api/blog/list', {
       params: {
@@ -90,7 +90,7 @@ const {
         search: searchKw.value.trim() || undefined,
       },
     }),
-  { watch: [route] }
+  { watch: [page, searchKw] }
 )
 
 const list = computed(() => (res.value as any)?.data?.list ?? [])
@@ -110,12 +110,7 @@ function clearSearch() {
 
 /* 翻页（保留当前关键词） */
 function go(newPage: number) {
-  navigateTo({
-    query: {
-      page: newPage,
-      ...(searchKw.value && { search: searchKw.value }),
-    },
-  })
+  page.value = newPage
 }
 </script>
 

@@ -41,10 +41,15 @@ const keyword = ref(props.modelValue ?? '')
 const inputRef = ref<HTMLInputElement>()
 
 /* 防抖输入 */
-const onInput = useDebounce(() => emit('search', keyword.value.trim()), 300)
+const onInput = useDebounce(() => {
+  emit('update:modelValue', keyword.value.trim())
+  emit('search', keyword.value.trim())
+}, 300)
 
-/* v-model 双向 */
-watch(keyword, v => emit('update:modelValue', v))
+watch(
+  () => props.modelValue,
+  v => (keyword.value = v ?? '')
+)
 
 /* 清空 */
 function clear() {
