@@ -4,7 +4,6 @@ import type { DeviceInfo } from '~/utils/deviceInfo'
 import { DeviceInfoService } from '~/utils/deviceInfo'
 
 export function useDeviceInfo() {
-  // 🔒 服务端直接返回空状态
   if (process.server) {
     return {
       visible: ref(false),
@@ -15,10 +14,10 @@ export function useDeviceInfo() {
         networkSpeed: '',
       }),
       pos: ref({ x: 0, y: 0 }),
+      show: () => {},
     }
   }
 
-  // 👇 以下全是客户端逻辑
   const visible = ref(false)
   const info = reactive<DeviceInfo>({
     deviceModel: '检测中...',
@@ -40,31 +39,30 @@ export function useDeviceInfo() {
     const target = e.composedPath().find(t => t instanceof HTMLElement) as HTMLElement
     if (target && isInteractive(target)) return
 
-    e.preventDefault()
+    if (e instanceof MouseEvent) {
+      e.preventDefault()
+    }
     const touch = e instanceof MouseEvent ? e : e.touches?.[0] || e.changedTouches?.[0]
     if (!touch) return
-
     pos.value = { x: touch.clientX, y: touch.clientY }
-
-    // ① 立刻弹出卡片（秒出骨架）
     visible.value = false
     await nextTick()
     visible.value = true
-
-    // ② 后台并发填充真实数据
     Object.assign(info, await DeviceInfoService.getInstance().getDeviceInfo())
   }
-
   const onContext = (e: MouseEvent) => show(e)
 
   let longPressTimer: number | null = null
   let longPressStarted = false
 
   const onTouchStart = (e: TouchEvent) => {
-    if (e.cancelable) e.preventDefault()
     longPressStarted = true
     longPressTimer = window.setTimeout(() => {
-      if (longPressStarted) show(e)
+      if (longPressStarted) {
+        // 只在真正触发长按时，阻止默认上下文菜单（可选）
+        if (e.cancelable) e.preventDefault()
+        show(e)
+      }
     }, 500)
   }
 
@@ -84,19 +82,20 @@ export function useDeviceInfo() {
     }
   }
 
+  // 绑定到 window，同时支持 PC 右键和移动端长按
   onMounted(() => {
-    document.addEventListener('contextmenu', onContext)
-    document.addEventListener('touchstart', onTouchStart, { passive: false })
-    document.addEventListener('touchmove', onTouchMove, { passive: true })
-    document.addEventListener('touchend', onTouchEnd)
+    window.addEventListener('contextmenu', onContext)
+    window.addEventListener('touchstart', onTouchStart, { passive: false })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchend', onTouchEnd)
   })
 
   onUnmounted(() => {
-    document.removeEventListener('contextmenu', onContext)
-    document.removeEventListener('touchstart', onTouchStart)
-    document.removeEventListener('touchmove', onTouchMove)
-    document.removeEventListener('touchend', onTouchEnd)
+    window.removeEventListener('contextmenu', onContext)
+    window.removeEventListener('touchstart', onTouchStart)
+    window.removeEventListener('touchmove', onTouchMove)
+    window.removeEventListener('touchend', onTouchEnd)
   })
 
-  return { visible, info, pos }
+  return { visible, info, pos, show }
 }
