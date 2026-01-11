@@ -358,7 +358,7 @@ html[data-theme='dark'] .hero-bg {
     font-size: 1.25rem;
     color: var(--text);
     box-shadow: var(--box-shadow);
-    transition: all 0.3s;
+    transition: all 0.5s ease;
     animation: popIn 1s ease-out forwards;
     animation-delay: calc(var(--i) * 200ms);
     animation-fill-mode: both;
@@ -374,6 +374,9 @@ html[data-theme='dark'] .hero-bg {
         transform: scale(1) translateY(0);
       }
     }
+    &:hover {
+      translate: 0 -5px;
+    }
     img {
       width: 20px;
       height: 20px;
@@ -383,9 +386,6 @@ html[data-theme='dark'] .hero-bg {
       html[data-theme='dark'] & {
         filter: invert(1) brightness(1.8);
       }
-    }
-    &:hover {
-      transform: translateY(-4px);
     }
     html[data-theme='dark'] & {
       background: rgba(255, 255, 255, 0.12); // 比原来亮 4×
