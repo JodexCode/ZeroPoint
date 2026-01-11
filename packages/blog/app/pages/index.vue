@@ -46,13 +46,14 @@
             </div>
             <div class="social-list">
               <a
-                v-for="s in socials"
+                v-for="(s, i) in socials"
                 :key="s.id"
                 :href="s.url"
                 target="_blank"
                 rel="noopener"
                 class="social-link"
                 :aria-label="s.name"
+                :style="{ '--i': i }"
               >
                 <img
                   :src="s.icon"
@@ -358,6 +359,21 @@ html[data-theme='dark'] .hero-bg {
     color: var(--text);
     box-shadow: var(--box-shadow);
     transition: all 0.3s;
+    animation: popIn 1s ease-out forwards;
+    animation-delay: calc(var(--i) * 200ms);
+    animation-fill-mode: both;
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0.7) translateY(40px);
+      }
+      50% {
+        transform: scale(1.08) translateY(-3px);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+      }
+    }
     img {
       width: 20px;
       height: 20px;
