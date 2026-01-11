@@ -93,7 +93,7 @@
       </section>
 
       <!-- ===== 关于我 ===== -->
-      <section class="about-section">
+      <section class="about-section" v-fade-in>
         <div class="about-container">
           <div class="about-header">
             <span class="decos decos-top">{</span>
@@ -114,6 +114,7 @@
 
 <script setup lang="ts">
 import { renderMarkdown } from '@/utils/md'
+
 /* 拉取全站配置（无组件库） */
 const {
   data: site,
