@@ -361,9 +361,21 @@ html[data-theme='dark'] .hero-bg {
       width: 20px;
       height: 20px;
       object-fit: contain;
+      transition: filter 0.3s;
+      /* 深色模式反白 */
+      html[data-theme='dark'] & {
+        filter: invert(1) brightness(1.8);
+      }
     }
     &:hover {
       transform: translateY(-4px);
+    }
+    html[data-theme='dark'] & {
+      background: rgba(255, 255, 255, 0.12); // 比原来亮 4×
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.15),
+        0 6px 16px rgba(0, 0, 0, 0.35);
     }
   }
 }
