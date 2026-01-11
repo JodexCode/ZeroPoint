@@ -223,6 +223,12 @@ useSeoMeta({
   align-items: center;
   justify-content: center;
   overflow: hidden;
+
+  /* 移动端正对 fixed navbar 做避让 */
+  padding-top: 56px;
+  @media (min-width: 1024px) {
+    padding-top: 0;
+  }
 }
 .hero-bg {
   z-index: -999;
@@ -288,7 +294,6 @@ html[data-theme='dark'] .hero-bg {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4vh;
   @media (min-width: 1024px) {
     flex-direction: row;
     gap: 20rem;
