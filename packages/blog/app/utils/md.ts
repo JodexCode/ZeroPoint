@@ -1,6 +1,6 @@
 import MarkdownIt from 'markdown-it'
 import hljs from 'highlight.js'
-import 'highlight.js/styles/a11y-dark.css'
+import 'highlight.js/styles/base16/solar-flare.min.css'
 
 export function renderMarkdown(src: string): string {
   const md: MarkdownIt = MarkdownIt({

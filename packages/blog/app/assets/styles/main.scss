@@ -1,6 +1,7 @@
 // packages\blog\app\assets\styles\main.scss
 @use './reset.scss';
 @use './theme.scss';
+@use './markdown.scss';
 
 // 3. 设置全局字体栈
 :root {

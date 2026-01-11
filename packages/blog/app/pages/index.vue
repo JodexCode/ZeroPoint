@@ -105,7 +105,7 @@
             <span v-for="t in tags" :key="t.id" class="tag-chip">{{ t.text }}</span>
           </p>
           <div class="bio-card">
-            <div class="intro-markdown" v-html="aboutHtml"></div>
+            <div class="intro-markdown markdown" v-html="aboutHtml"></div>
           </div>
         </div>
       </section>
@@ -162,6 +162,8 @@ useSeoMeta({
 </script>
 
 <style scoped lang="scss">
+@use '../assets/styles/markdown.scss' as *;
+
 /* 1. 加载 & 错误 */
 .loading-box,
 .error-box {
@@ -584,90 +586,6 @@ html[data-theme='dark'] .hero-bg {
   border: 1px solid rgba(var(--text), 0.08);
   border-radius: 1rem;
   box-shadow: var(--about-card-shadow, 0 8px 32px rgba(#000, 0.1));
-  .intro-markdown {
-    text-align: left;
-    color: var(--text);
-    line-height: 1.8;
-    /* 简单 Markdown 样式 */
-    :deep(h1),
-    :deep(h2),
-    :deep(h3) {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      color: var(--primary);
-    }
-    :deep(p) {
-      margin-bottom: 1rem;
-    }
-    :deep(ul) {
-      list-style: none !important;
-      padding-left: 1.5rem;
-      margin: 0.5rem 0 1rem;
-    }
-    :deep(ul li) {
-      position: relative;
-      padding-left: 1rem;
-    }
-    :deep(ul li::before) {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0.6em;
-      width: 0.375rem;
-      height: 0.375rem;
-      background: currentColor;
-      border-radius: 50%;
-    }
-    :deep(ol) {
-      list-style: none !important;
-      counter-reset: ol-counter;
-      padding-left: 1.5rem;
-      margin: 0.5rem 0 1rem;
-    }
-    :deep(ol li) {
-      position: relative;
-      padding-left: 1.5rem;
-      counter-increment: ol-counter;
-    }
-    :deep(ol li::before) {
-      content: counter(ol-counter) '.';
-      position: absolute;
-      left: 0;
-      top: 0;
-      color: currentColor;
-      font-weight: 500;
-    }
-    :deep(a) {
-      color: var(--primary);
-      text-decoration: none;
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-    :deep(img) {
-      max-width: 100%;
-      border-radius: 0.5rem;
-      margin: 1rem 0;
-    }
-    :deep(.hljs) {
-      display: block;
-      padding: 1em;
-      margin: 0.5em 0;
-      border-radius: 8px;
-      background: var(--hljs-bg, #282a36); // Dracula 默认背景
-      color: var(--hljs-text, #f8f8f2);
-      overflow-x: auto;
-    }
-    :deep(blockquote) {
-      margin: 1rem 0;
-      padding: 0.75rem 1rem 0.75rem 0.75rem;
-      border-left: 4px solid var(--primary); // 左侧高亮色条
-      background: rgba(var(--primary), 0.06); // 淡底纹
-      border-radius: 0 6px 6px 0; // 只圆右侧
-      color: var(--text);
-      font-style: italic;
-    }
-  }
 }
 .beian {
   margin-top: 2rem;
