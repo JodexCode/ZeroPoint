@@ -36,7 +36,7 @@
 
         <div class="hero-container">
           <!-- 左侧头像 + 社交 -->
-          <div class="hero-left slide-in-left">
+          <div class="hero-left slide-in-left no-select">
             <div class="avatar-spin">
               <div class="spin-ring"></div>
             </div>
@@ -72,7 +72,7 @@
             <div class="typewriter-box">
               <div class="typewriter-placeholder">{{ site?.meta.bio }}</div>
             </div>
-            <div class="hero-actions">
+            <div class="hero-actions no-select">
               <NuxtLink to="/blog" class="btn btn-primary">阅读博客</NuxtLink>
               <NuxtLink to="/projects" class="btn btn-outline">查看项目</NuxtLink>
             </div>
@@ -423,7 +423,31 @@ html[data-theme='dark'] .hero-bg {
     font-size: 4rem;
   }
   .name-highlight {
+    position: relative;
     color: var(--primary);
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -4px; // 与文字间距
+      height: 3px; // 线粗
+      width: 100%;
+      background: currentColor; // 跟随主色
+      transform: scaleX(0); // 初始隐藏
+      transform-origin: center;
+      animation: underlineSweep 1.8s ease-in-out infinite;
+    }
+    @keyframes underlineSweep {
+      0% {
+        transform: scaleX(0);
+      }
+      50% {
+        transform: scaleX(1);
+      }
+      100% {
+        transform: scaleX(0);
+      }
+    }
   }
 }
 .typewriter-placeholder {
@@ -531,7 +555,6 @@ html[data-theme='dark'] .hero-bg {
     font-weight: 700;
   }
   .code-comment {
-    font-family: 'Fira Code', monospace;
     color: var(--primary);
     margin-right: 0.25rem;
     font-weight: 900;
@@ -776,5 +799,9 @@ html[data-theme='dark'] .hero-bg {
   to {
     transform: rotate(360deg);
   }
+}
+.no-select {
+  user-select: none;
+  -webkit-user-drag: none;
 }
 </style>
