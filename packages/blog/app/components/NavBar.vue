@@ -130,7 +130,7 @@ function isActive(path: string) {
 
 .pulse {
   display: inline-block;
-  animation: pulse 2s infinite;
+  animation: pulse 2.4s infinite;
 }
 
 @keyframes pulse {
@@ -139,7 +139,7 @@ function isActive(path: string) {
     opacity: 1;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.6;
   }
 }
 

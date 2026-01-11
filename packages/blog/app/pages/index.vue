@@ -212,7 +212,6 @@ useSeoMeta({
   }
 }
 
-/* 2. 英雄区（沿用你已有 SCSS） */
 .hero {
   position: relative;
   min-height: 100vh;
@@ -225,8 +224,19 @@ useSeoMeta({
   z-index: -999;
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--bg) 50%, #2dd4aa 100%);
+  /* 1. 柔和径向光晕 */
+  background:
+    radial-gradient(120% 120% at 50% 0, var(--primary) 0%, transparent 60%),
+    radial-gradient(80% 80% at 80% 20%, #2dd4aa 0%, transparent 50%), var(--bg); /* 兜底背景色 */
+  opacity: 0.22; /* 整体压暗，避免刺眼 */
+  transition: opacity 0.35s; /* 随主题切换淡入淡出 */
 }
+
+/* 深色模式再压暗一点 */
+html[data-theme='dark'] .hero-bg {
+  opacity: 0.15;
+}
+
 .hero-shapes .shape {
   position: absolute;
   border-radius: 50%;
