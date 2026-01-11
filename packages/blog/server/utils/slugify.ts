@@ -5,7 +5,7 @@ import { pinyin } from 'pinyin-pro'
 const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 8)
 
 export function slugify(title: string): string {
-  // ✅ pinyin-pro >=3 默认已启用智能分词（phrase mode）
+  //  pinyin-pro >=3 默认已启用智能分词（phrase mode）
   const pinyinArray = pinyin(title, {
     type: 'array',
     toneType: 'none', // 不带声调（可省略，默认就是 none）

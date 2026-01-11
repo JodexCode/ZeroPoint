@@ -97,13 +97,15 @@ function isActive(path: string) {
 <style scoped>
 /* ===== 基础变量 ===== */
 .navbar {
-  position: sticky;
+  position: fixed;
+  width: 100%;
   top: 0;
   z-index: 99999;
   height: 56px;
   background: var(--nav-bg);
-  backdrop-filter: blur(4px);
   box-shadow: var(--box-shadow);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
 }
 
 .navbar-inner {

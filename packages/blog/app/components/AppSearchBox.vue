@@ -74,7 +74,7 @@ function handleSubmit() {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 2rem;
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 1rem;
   backdrop-filter: blur(8px);
   transition: box-shadow 0.3s;
   &:focus-within {
@@ -145,11 +145,11 @@ function handleSubmit() {
     transform: translate(-50%, -50%) rotate(-45deg);
   }
 }
-@media (max-width: 360px) {
-  .app-search-box {
-    font-size: 0.875rem;
-    border-radius: 8px;
-    padding: 0.35rem 0.5rem;
-  }
-}
+// @media (max-width: 360px) {
+//   .app-search-box {
+//     font-size: 0.875rem;
+//     border-radius: 8px;
+//     padding: 0.35rem 0.5rem;
+//   }
+// }
 </style>

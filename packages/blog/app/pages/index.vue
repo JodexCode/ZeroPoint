@@ -215,7 +215,7 @@ useSeoMeta({
 /* 2. 英雄区（沿用你已有 SCSS） */
 .hero {
   position: relative;
-  min-height: calc(100vh - 56px);
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;

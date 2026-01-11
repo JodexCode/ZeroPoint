@@ -120,6 +120,7 @@ function go(newPage: number) {
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  margin-top: 56px;
 }
 
 /* 2. 加载/错误/空态 */
